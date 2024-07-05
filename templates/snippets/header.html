@@ -10,7 +10,7 @@
 				<li><a href="#" class="nav-link px-2 link-body-emphasis">Customers</a></li>
 				<li><a href="#" class="nav-link px-2 link-body-emphasis">Products</a></li>
 			</ul> {% endcomment %}
-			{% if request.user.is_authenticated %}
+			
 			<form class="col-12 col-lg-auto w-25" role="search" method="post">
 				{% csrf_token %}
 				<input type="search" name="search_user" id="search_user" class="form-control" placeholder="Search User...">
@@ -31,9 +31,9 @@
 					<li><a class="dropdown-item text-danger" href="#">Log Out</a></li>
 				</ul>
 			</div>
-			{% else %}
 			
-			{% endif %}
+			
+			
 		</div>
 	</div>
 </header>
