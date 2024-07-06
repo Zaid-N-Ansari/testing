@@ -14,13 +14,16 @@ SECRET_KEY = 'django-insecure-ni_4^q69elzvs9s$pgj!ob-l0r$1jh--@0ikiazlxf#fkb+3s0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+AUTH_USER_MODEL = 'account.UserAccount'
+
 ALLOWED_HOSTS = []
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-AUTHENTICATION_BACKENDS = ( 
-    'django.contrib.auth.backends.AllowAllUsersModelBackend',
-)
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Keep the default backend
+    'account.backends.EmailOrUserIdBackend',    # Add your custom backend
+]
 
 # Application definition
 
