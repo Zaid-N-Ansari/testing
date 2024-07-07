@@ -1,1 +1,3 @@
 /static_cdn
+/.venv
+**/__pycache__

@@ -25,6 +25,11 @@ AUTHENTICATION_BACKENDS = [
     'account.backends.EmailOrUserIdBackend',    # Add your custom backend
 ]
 
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'logout'
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+
 # Application definition
 
 INSTALLED_APPS = [

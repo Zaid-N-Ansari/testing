@@ -1,5 +1,5 @@
 {% load static %}
-<header class="p-3 pb-2 shadow mb-3">
+<header class="p-3 pb-2 shadow-lg mb-3 sticky-top z-3 bg-dark">
 	<div class="bs5-container-fluid">
 		<div class="row">
 			<div
@@ -18,7 +18,7 @@
 
 
 			<div
-				class="col-md-6 col-lg-6 col-6 d-flex flex-md-row flex-lg-row flex-column justify-content-end justify-content-md-end justify-content-lg-end">
+				class="col-md-6 col-lg-6 col-6 d-flex flex-md-row flex-lg-row flex-column justify-content-end justify-content-md-end justify-content-lg-end user-select-none">
 				<ul class="nav me-md-5 me-lg-5 mb-2 justify-content-end">
 					<li
 						class="nav-link link-secondary d-flex align-items-center text-left ms-0 ps-0 pe-0 fs-4 switch-theme">
@@ -34,6 +34,10 @@
 						document.querySelector("ul > li.switch-theme > a").innerText = is_dark_theme ? "Light" : "Dark";
 
 						document.querySelector("ul > li.switch-theme > span").innerText = is_dark_theme ? "light_mode" : "dark_mode";
+
+						document.querySelector("header").classList.remove(!is_dark_theme ? "bg-white" : "bg-dark");
+
+						document.querySelector("header").classList.add(is_dark_theme ? "bg-white" : "bg-dark");
 					});
 				</script>
 				{% if request.user.is_authenticated %}
@@ -53,10 +57,12 @@
 							<a class="dropdown-item" href="#">Profile</a>
 						</li>
 						<li>
-							<a class="dropdown-item text-danger d-flex align-items-center justify-content-between"
-								href="{% url 'logout' %}">Log Out
+							<form class="dropdown-item text-danger" action="{% url 'logout' %}" method="post">
+								{% csrf_token %}
+								<button type="submit" class="dropdown-item text-danger d-flex align-items-center justify-content-between p-0">Log Out
 								<span class="material-icons">logout<span>
-							</a>
+							</button>
+							</form>
 						</li>
 					</ul>
 				</div>
