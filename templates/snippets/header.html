@@ -40,7 +40,7 @@
 				<div class="dropdown text-end">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
 						data-bs-toggle="dropdown" aria-expanded="false">
-						<img src="{% static 'defaultpfi.jpg' %}" alt="User Profile Image" width="40" height="40"
+						<img src="{{ request.user.profile_image.url }}" alt="User Profile Image" width="40" height="40"
 							class="rounded-circle" />
 					</a>
 					<style>
@@ -54,7 +54,7 @@
 						</li>
 						<li>
 							<a class="dropdown-item text-danger d-flex align-items-center justify-content-between"
-								href="#">Log Out
+								href="{% url 'logout' %}">Log Out
 								<span class="material-icons">logout<span>
 							</a>
 						</li>
@@ -68,7 +68,7 @@
 						<span class="material-icons ms-1">login</span>
 					</button>
 				</a>
-				<a href="#" class="text-warning">
+				<a href="{% url 'register' %}" class="text-warning">
 					<button type="button" class="bg-transparent border-0 d-flex align-items-center h-100">Sign Up
 						<span class="material-icons ms-1">person_add</span>
 					</button>

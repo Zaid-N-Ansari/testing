@@ -2,7 +2,7 @@
 {% block title %}Home{% endblock title %}
 {% block content %}
 
-<div class="container-fluid h-100">
+<div class="container-fluid h-full">
 	<div class="row mt-5">
 		<div class="col-12">
 			<h1 class="blog-header-logo text-body-emphasis user-select-none text-center" href="#">This is a Chat App made with <span class="text-danger">&hearts;</span> by <span class="fw-light fst-italic">ZNA</span></h1>
@@ -14,5 +14,10 @@
 		</div>
 	</div>
 </div>
+<style>
+	div.h-full {
+		min-height: 100dvh;
+	}
+</style>
 
 {% endblock content %}
