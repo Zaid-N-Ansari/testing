@@ -54,7 +54,7 @@
 					</style>
 					<ul class="dropdown-menu text-small">
 						<li>
-							<a class="dropdown-item" href="#">Profile</a>
+							<a class="dropdown-item" href="{% url 'profile' request.user.username %}">Profile</a>
 						</li>
 						<li>
 							<form class="dropdown-item text-danger" action="{% url 'logout' %}" method="post">

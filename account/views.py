@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
 from django.urls import reverse_lazy
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.views.generic.edit import FormView
+from django.views.generic import DetailView
+from django.contrib.auth import get_user_model
+from django.http import Http404
 from django.contrib.auth.views import (
 	LoginView,
     LogoutView,
@@ -17,7 +16,8 @@ from .forms import (
 	CustomPasswordResetForm,
 	CustomPasswordResetConfirmForm,
 )
-from .models import UserAccount
+
+User = get_user_model()
 
 
 class CustomLoginView(LoginView):
@@ -28,6 +28,21 @@ class CustomLoginView(LoginView):
 class CustomLogoutView(LogoutView):
     http_method_names = ['get', 'post']
     template_name = "registration/logout.html"
+
+
+class ProfileView(DetailView):
+    model = User
+    template_name = 'account/profile.html'
+    context_object_name = 'user_profile'
+    slug_field = 'username'
+    slug_url_kwarg = 'username'
+
+    def get_object(self, queryset=None):
+        username = self.kwargs.get('username')
+        try:
+            return User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise Http404("User does not exist")
 
 
 class CustomPasswordResetView(PasswordResetView):
@@ -44,18 +59,6 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     form_class = CustomPasswordResetConfirmForm
     success_url = reverse_lazy('password_reset_complete')
     template_name = 'registration/password_reset_confirm.html'
-
-
-# def register_view(request):
-#     if request.method == 'POST':
-#         form = CustomUserCreationForm(request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             login(request, user)
-#             return redirect('home')
-#     else:
-#         form = CustomUserCreationForm()
-#     return render(request, 'registration/register.html', {'form': form})
 
 
 class RegisterView(FormView):

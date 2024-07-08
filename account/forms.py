@@ -2,6 +2,7 @@ from django.conf import settings
 from .models import UserAccount
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.forms import (
 	AuthenticationForm,
     UserCreationForm,
@@ -65,7 +66,7 @@ class CustomUserCreationForm(UserCreationForm):
         user = super().save(commit=False)
         if commit:
             user.save()
-            user.backend = settings.AUTHENTICATION_BACKENDS[0]
+            # user.backend = settings.AUTHENTICATION_BACKENDS[0]
         return user
 
 
@@ -85,7 +86,7 @@ class CustomPasswordResetForm(PasswordResetForm):
 
 class CustomPasswordResetConfirmForm(SetPasswordForm):
     new_password1 = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-control'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'autofocus':'true'}),
         label="New password",
         strip=False,
     )
@@ -101,31 +102,21 @@ class CustomPasswordResetConfirmForm(SetPasswordForm):
 
         if new_password1 and new_password2:
             if new_password1 != new_password2:
-                raise forms.ValidationError("The two password fields didn’t match.")
+                raise forms.ValidationError("Both Passwords Do not Match")
             user = self.user
             if user.check_password(new_password1):
-                raise forms.ValidationError("The new password cannot be the same as the current password.")
+                raise forms.ValidationError("You are using this same Password.")
+        else:
+            raise ValidationError("Both Password Fields are Required.")
+
+        validate_password(new_password1, user=user)
 
         return new_password2
     
-
-# class CustomUserCreationForm(UserCreationForm):
-#     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
-#     first_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
-#     last_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
-
-#     class Meta:
-#         model = UserAccount
-#         fields = ("username", "email", "first_name", "last_name", "password1", "password2")
-#         widgets = {
-#             'username': forms.TextInput(attrs={'class': 'form-control'}),
-#             'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
-#             'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
-#         }
-
-#     def save(self, commit=True):
-#         user = super().save(commit=False)
-#         user.email = self.cleaned_data["email"]
-#         if commit:
-#             user.save()
-#         return user
+    def save(self, commit=True):
+        password = self.cleaned_data["new_password1"]
+        self.user
+        self.user.set_password(password)
+        if commit:
+            self.user.save()
+        return self.user
