@@ -8,11 +8,14 @@ from django.contrib.auth.forms import (
     UserCreationForm,
     PasswordResetForm,
     SetPasswordForm,
+    PasswordChangeForm
 )
 
 class LoginForm(AuthenticationForm):
     class Meta:
         fields = ('username', 'password')
+
+    username = forms.CharField(label='Username / Email / Id')
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
@@ -23,12 +26,12 @@ class LoginForm(AuthenticationForm):
 class CustomUserCreationForm(UserCreationForm):
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        label="Password",
+        label='Password',
         strip=False,
     )
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        label="Password confirmation",
+        label='Password confirmation',
         strip=False,
     )
 
@@ -53,13 +56,13 @@ class CustomUserCreationForm(UserCreationForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if UserAccount.objects.filter(email=email).exists():
-            raise forms.ValidationError("Email Already in Use.")
+            raise forms.ValidationError('Email Already in Use.')
         return email
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if UserAccount.objects.filter(username=username).exists():
-            raise forms.ValidationError("Username Already in Use.")
+            raise forms.ValidationError('Username Already in Use.')
         return username
 
     def save(self, commit=True):
@@ -80,19 +83,19 @@ class CustomPasswordResetForm(PasswordResetForm):
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if not UserAccount.objects.filter(email=email).exists():
-            raise ValidationError("This email address is not registered.")
+            raise ValidationError('This email address is not registered.')
         return email
 
 
 class CustomPasswordResetConfirmForm(SetPasswordForm):
     new_password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'autofocus':'true'}),
-        label="New password",
+        label='New password',
         strip=False,
     )
     new_password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control'}),
-        label="New password confirmation",
+        label='New password confirmation',
         strip=False,
     )
 
@@ -102,21 +105,45 @@ class CustomPasswordResetConfirmForm(SetPasswordForm):
 
         if new_password1 and new_password2:
             if new_password1 != new_password2:
-                raise forms.ValidationError("Both Passwords Do not Match")
+                raise forms.ValidationError('Both Passwords Do not Match')
             user = self.user
             if user.check_password(new_password1):
-                raise forms.ValidationError("You are using this same Password.")
+                raise forms.ValidationError('You are using this same Password.')
         else:
-            raise ValidationError("Both Password Fields are Required.")
+            raise ValidationError('Both Password Fields are Required.')
 
         validate_password(new_password1, user=user)
 
         return new_password2
     
     def save(self, commit=True):
-        password = self.cleaned_data["new_password1"]
+        password = self.cleaned_data['new_password1']
         self.user
         self.user.set_password(password)
         if commit:
             self.user.save()
         return self.user
+    
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    old_password = forms.CharField(
+        label= 'Old Password',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={'autocomplete': 'current-password', 'autofocus': True, 'class':'form-control'}
+        ),
+    )
+    new_password1 = forms.CharField(
+        label= 'New Password',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={'class':'form-control'}
+        ),
+    )
+    new_password2 = forms.CharField(
+        label= 'New Password Confirm',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={'class':'form-control'}
+        ),
+    )

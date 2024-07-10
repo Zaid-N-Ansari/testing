@@ -8,25 +8,26 @@
 			min-height: 100dvh;
 		}
 	</style>
-	<div class="row">
-		<div class="col-12 user-select-none">
-			<h2 style="background: -webkit-linear-gradient(var(--bs-link-color), lightblue); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-				Welcome, {{ request.user.first_name }} {{ request.user.last_name }}
-			</h2>
+	<div class="row w-50 mt-5">
+		<div class="card border-0" style="width: 40dvh;">
+			<img class="card-img-top rounded-circle" src="{{ request.user.profile_image.url }}" alt="Card image cap">
+			<div class="card-body text-center">
+				<h5 class="card-title">{{ request.user.username }}</h5>
+				<p class="card-text">Unique User Id:
+					<span class="text-info">{{ request.user.id }}</span>
+				</p>
+			</div>
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-12">
-			<form method="post">
-				{% csrf_token %}
-				<div class="form-group">
-					<img src="{{ request.user.profile_image.url }}" alt="Profile Image" height="40" width="40">
-				</div>
-				<div class="form-group">
-					
-				</div>
-			</form>
-		</div>
+		<a href="#" class="float-end text-decoration-none">
+			<button type="button" class="btn btn-primary position-relative">My Friends
+				<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-primary">
+					99
+				</span>
+			</button>
+		</a>
+		<a href="{% url 'password_change' %}" class="float-end text-decoration-none">
+			<button type="button" class="btn">Change Password</button>
+		</a>
 	</div>
 </div>
 

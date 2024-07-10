@@ -16,7 +16,7 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'account.UserAccount'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

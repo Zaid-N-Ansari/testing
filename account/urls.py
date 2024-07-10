@@ -6,6 +6,8 @@ from .views import (
 	CustomLogoutView,
 	CustomPasswordResetView,
 	CustomPasswordResetConfirmView,
+	CustomPasswordChangeView,
+	CustomPasswordChangeDoneView
 )
 from django.contrib.auth.views import PasswordResetDoneView, PasswordResetCompleteView
 
@@ -18,15 +20,15 @@ urlpatterns = [
 
 	path('profile/<str:username>/', ProfileView.as_view(), name='profile'),
 
-    # path(
-    #     "password_change/", views.PasswordChangeView.as_view(), name="password_change"
-    # ),
+    path(
+        "password-change/", CustomPasswordChangeView.as_view(), name="password_change"
+    ),
 
-    # path(
-    #     "password_change/done/",
-    #     views.PasswordChangeDoneView.as_view(),
-    #     name="password_change_done",
-    # ),
+    path(
+        "password-change/done/",
+        CustomPasswordChangeDoneView.as_view(),
+        name="password_change_done",
+    ),
 
     path("password-reset/",
 		CustomPasswordResetView.as_view(),

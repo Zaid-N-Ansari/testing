@@ -1,20 +1,25 @@
 from django.urls import reverse_lazy
+from django.contrib.auth import logout
 from django.views.generic.edit import FormView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
 from django.http import Http404
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
 	LoginView,
     LogoutView,
     PasswordResetView,
     PasswordResetConfirmView,
     PasswordResetDoneView,
+    PasswordChangeView,
+    PasswordChangeDoneView
 )
 from .forms import (
 	LoginForm,
 	CustomUserCreationForm,
 	CustomPasswordResetForm,
 	CustomPasswordResetConfirmForm,
+    CustomPasswordChangeForm
 )
 
 User = get_user_model()
@@ -26,11 +31,11 @@ class CustomLoginView(LoginView):
 
 
 class CustomLogoutView(LogoutView):
-    http_method_names = ['get', 'post']
+    http_method_names = ['post']
     template_name = "registration/logout.html"
 
 
-class ProfileView(DetailView):
+class ProfileView(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'account/profile.html'
     context_object_name = 'user_profile'
@@ -51,11 +56,11 @@ class CustomPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
 
 
-class CustomPasswordResetDoneView(PasswordResetDoneView):
+class CustomPasswordResetDoneView( PasswordResetDoneView):
     template_name = 'registration/password_reset_done.html'
 
 
-class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+class CustomPasswordResetConfirmView( PasswordResetConfirmView):
     form_class = CustomPasswordResetConfirmForm
     success_url = reverse_lazy('password_reset_complete')
     template_name = 'registration/password_reset_confirm.html'
@@ -70,3 +75,11 @@ class RegisterView(FormView):
         form.save()
         return super().form_valid(form)
 
+
+class CustomPasswordChangeView( PasswordChangeView):
+    form_class = CustomPasswordChangeForm
+
+
+class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
+    def dispatch(self, request, *args, **kwargs):
+        return CustomLogoutView.as_view()(request)
