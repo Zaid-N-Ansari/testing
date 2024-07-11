@@ -32,6 +32,10 @@
 			text-decoration: none !important;
 		}
 
+		div.h-full {
+			min-height: 100dvh;
+		}
+
 		::-webkit-scrollbar {
 			width: 0.3rem;
 		}
@@ -52,6 +56,13 @@
 <body>
 	{% include "snippets/header.html" %}
 	{% block content %}{% endblock %}
+	<script>
+		$(document).ready(function (e) {
+			$('button.close').on('click', function () {
+				$(this).parent('div.alert').alert('close');
+			});
+		});
+	</script>
 	{% include "snippets/footer.html" %}
 </body>
 </html>

@@ -1,39 +1,39 @@
 {% load static %}
-<header class="p-3 pb-2 shadow-lg mb-3 sticky-top z-3 bg-dark">
+<style>
+	.dropdown-toggle::after {
+		display: none;
+	}
+</style>
+<header class="p-3 shadow-lg mb-3 sticky-top z-3 bg-dark">
 	<div class="bs5-container-fluid">
-		<div class="row">
+		<div class="row justify-content-between align-items-center">
 			<div
-				class="col-md-6 col-lg-6 col-6 d-flex flex-md-row flex-lg-row flex-column justify-content-start justify-content-md-start justify-content-lg-start">
-				<a class="text-decoration-none fs-4 me-md-5 me-lg-5 mb-3 mb-md-0 mb-lg-0"
-					href="{% url 'home' %}">ChatApp</a>
+				class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start justify-content-lg-between mb-md-0 mb-lg-0 mb-3">
+				<a class="fs-4 me-md-5 me-lg-5 mb-md-0 mb-lg-0" href="/">ChatApp</a>
 
-				{% if request.user.is_authenticated %}
-				<form class="col-10 col-md-6 col-lg-4" role="search" method="post">
-					{% csrf_token %}
+				<form class="col-8 col-md-6 col-lg-4" role="search" method="post">
+					<input type="hidden" name="csrfmiddlewaretoken"
+						value="JoVTUkicChMTNBK92rIN4bvbQBAWztUEk12wWhH8WLQeEIg5Iovr2KFIjAHYRJ8o">
 					<input type="search" name="search_user" id="search_user" class="form-control"
 						placeholder="Search User">
 				</form>
-				{% endif %}
 			</div>
 
 
 			<div
-				class="col-md-6 col-lg-6 col-6 d-flex flex-md-row flex-lg-row flex-column justify-content-end justify-content-md-end justify-content-lg-end user-select-none">
-				<ul class="nav me-md-5 me-lg-5 mb-2 justify-content-end">
-					<li
-						class="nav-link link-secondary d-flex align-items-center text-left ms-0 ps-0 pe-0 fs-4 switch-theme">
-						<span class="material-icons me-2">dark_mode</span>
-						<a class="text-body-secondary fs-6">Dark</a>
-					</li>
-				</ul>
+				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between justify-content-md-around justify-content-lg-around align-items-center user-select-none px-3">
+				<a class="d-flex align-items-center switch-theme">
+					<span class="material-icons me-2">dark_mode</span>
+					<span class="text-body-secondary fs-6">Dark</span>
+				</a>
 				<script>
-					document.querySelector("ul > li.switch-theme").addEventListener("click",(e) => {
+					document.querySelector(".switch-theme").addEventListener("click", (e) => {
 						let is_dark_theme = document.querySelector("html").getAttribute("data-bs-theme") === "dark";
 						document.getElementsByTagName('html')[0].setAttribute("data-bs-theme", is_dark_theme ? "light" : "dark");
 
-						document.querySelector("ul > li.switch-theme > a").innerText = is_dark_theme ? "Light" : "Dark";
+						document.querySelectorAll(".switch-theme > span")[1].innerText = is_dark_theme ? "Light" : "Dark";
 
-						document.querySelector("ul > li.switch-theme > span").innerText = is_dark_theme ? "light_mode" : "dark_mode";
+						document.querySelectorAll(".switch-theme > span")[0].innerText = is_dark_theme ? "light_mode" : "dark_mode";
 
 						document.querySelector("header").classList.remove(!is_dark_theme ? "bg-white" : "bg-dark");
 
@@ -41,17 +41,12 @@
 					});
 				</script>
 				{% if request.user.is_authenticated %}
-				<div class="dropdown text-end">
+				<div class="dropdown text-end d-md-none d-lg-none">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
 						data-bs-toggle="dropdown" aria-expanded="false">
 						<img src="{{ request.user.profile_image.url }}" alt="User Profile Image" width="40" height="40"
 							class="rounded-circle" />
 					</a>
-					<style>
-						a.dropdown-toggle::after {
-							display: none;
-						}
-					</style>
 					<ul class="dropdown-menu text-small">
 						<li>
 							<a class="dropdown-item" href="{% url 'profile' request.user.username %}">Profile</a>
@@ -59,28 +54,54 @@
 						<li>
 							<form class="dropdown-item text-danger" action="{% url 'logout' %}" method="post">
 								{% csrf_token %}
-								<button type="submit" class="dropdown-item text-danger d-flex align-items-center justify-content-between p-0">Log Out
-								<span class="material-icons">logout<span>
-							</button>
+								<button type="submit"
+									class="dropdown-item text-danger d-flex align-items-center justify-content-between p-0">Log
+									Out
+									<span class="material-icons">logout<span>
+								</button>
 							</form>
 						</li>
 					</ul>
 				</div>
 			</div>
 			{% else %}
-			<div class="d-flex h-75">
-				<a href="{% url 'login' %}" class="me-2">
-					<button type="button" class="bg-transparent border-0 d-flex align-items-center h-100">Log In
-						<span class="material-icons ms-1">login</span>
+			<div class="d-md-inline-flex d-lg-inline-flex d-none">
+				<a href="{% url 'login' %}" class="me-4">
+					<button type="button" class="bg-transparent border-0 d-flex align-items-center text-success">Log In
+						<span class="material-icons">login</span>
 					</button>
 				</a>
 				<a href="{% url 'register' %}" class="text-warning">
-					<button type="button" class="bg-transparent border-0 d-flex align-items-center h-100">Sign Up
-						<span class="material-icons ms-1">person_add</span>
+					<button type="button" class="bg-transparent border-0 d-flex align-items-center text-warning">Sign Up
+						<span class="material-icons">person_add</span>
 					</button>
 				</a>
 			</div>
+			<div class="d-lg-none d-md-none">
+				<button class="d-flex link-body-emphasis dropdown-toggle border-0 bg-transparent"
+					data-bs-toggle="dropdown" aria-expanded="true">
+					<span class="material-icons">menu</span>
+				</button>
+				<ul class="dropdown-menu text-small shadow-lg">
+					<li class="mb-1">
+						<a class="dropdown-item" href="{% url 'login' %}">
+							<button type="button"
+								class="bg-transparent border-0 d-flex align-items-center text-success">Log In
+								<span class="material-icons ms-1">login</span>
+							</button>
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="{% url 'register' %}">
+							<button type="button"
+								class="bg-transparent border-0 d-flex align-items-center text-warning">Sign
+								Up
+								<span class="material-icons ms-1">person_add</span>
+							</button>
+						</a>
+					</li>
+				</ul>
+			</div>
 			{% endif %}
 		</div>
-	</div>
 </header>

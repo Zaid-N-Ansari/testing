@@ -7,6 +7,7 @@ class EmailOrUserIdBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         try:
             user = UserAccount.objects.get(Q(username=username) | Q(email=username) | Q(id=username))
+            print(user)
         except UserAccount.DoesNotExist:
             return None
         

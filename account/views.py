@@ -1,5 +1,4 @@
 from django.urls import reverse_lazy
-from django.contrib.auth import logout
 from django.views.generic.edit import FormView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
@@ -56,7 +55,7 @@ class CustomPasswordResetView(PasswordResetView):
     template_name = 'registration/password_reset_form.html'
 
 
-class CustomPasswordResetDoneView( PasswordResetDoneView):
+class CustomPasswordResetDoneView(PasswordResetDoneView):
     template_name = 'registration/password_reset_done.html'
 
 

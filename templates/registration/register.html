@@ -2,8 +2,8 @@
 {% block title %}Register{% endblock title %}
 {% block content %}
 
-<div class="row mt-5 flex-row align-items-center justify-content-center">
-	<div class="col-md-5 col-lg-3 col-9">
+<div class="row me-0 mt-5 flex-row align-items-start justify-content-center h-full">
+	<div class="col-md-5 col-lg-3 col-9 shadow py-3">
 		<h1 class="display-4 mb-4 user-select-none text-center">Register User</h1>
 		<form method="POST">
 			{% csrf_token %}
@@ -88,14 +88,6 @@
 				<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger" data-dismiss="alert" aria-label="Close">&times;</button>
 			</div>
 			{% endif %}
-
-			<script>
-				$(document).ready(function (e) {
-					$('button.close').on('click', function () {
-						$(this).parent('div.alert').alert('close');
-					});
-				});
-			</script>
 		</form>
 	</div>
 </div>
