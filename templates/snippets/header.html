@@ -21,8 +21,8 @@
 
 
 			<div
-				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between justify-content-md-around justify-content-lg-around align-items-center user-select-none px-3">
-				<a class="d-flex align-items-center switch-theme">
+				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
+				<a class="d-flex align-items-center justify-content-md-end justify-content-lg-end switch-theme w-75">
 					<span class="material-icons me-2">dark_mode</span>
 					<span class="text-body-secondary fs-6">Dark</span>
 				</a>
@@ -41,7 +41,7 @@
 					});
 				</script>
 				{% if request.user.is_authenticated %}
-				<div class="dropdown text-end d-md-none d-lg-none">
+				<div class="dropdown text-end">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
 						data-bs-toggle="dropdown" aria-expanded="false">
 						<img src="{{ request.user.profile_image.url }}" alt="User Profile Image" width="40" height="40"

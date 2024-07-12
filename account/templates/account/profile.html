@@ -1,34 +1,72 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock title %}
+{% block title %}Profile{% endblock title %}
 {% block content %}
 
-<div class="container">
+<div class="container h-full">
 	<style>
 		div.container {
 			min-height: 100dvh;
 		}
 	</style>
-	<div class="row w-50 mt-5">
-		<div class="card border-0" style="width: 40dvh;">
-			<img class="card-img-top rounded-circle" src="{{ request.user.profile_image.url }}" alt="Card image cap">
-			<div class="card-body text-center">
-				<h5 class="card-title">{{ request.user.username }}</h5>
-				<p class="card-text">Unique User Id:
-					<span class="text-info">{{ request.user.id }}</span>
-				</p>
+	<div class="row mt-5 justify-content-center h-100">
+		<div class="col-md-6 col-lg-4 col-12">
+			<div class="d-flex justify-content-center justify-content-md-start">
+				<div class="position-relative" style="width: 30dvh; height: 30dvh;">
+					<img class="rounded-circle w-100 h-100" src="{{ request.user.profile_image.url }}"
+						alt="Profile Image" loading="lazy">
+					<span
+						class="material-icons text-danger position-absolute top-50 start-50 translate-middle">edit</span>
+				</div>
 			</div>
 		</div>
-		<a href="#" class="float-end">
-			<button type="button" class="btn btn-primary position-relative">My Friends
-				<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-primary">
-					99
-				</span>
-			</button>
-		</a>
-		<a href="{% url 'password_change' %}" class="float-end text-decoration-none">
-			<button type="button" class="btn">Change Password</button>
-		</a>
+		<div class="col-md-6 col-lg-4 col-10 text-center">
+			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-center">
+				<p class="lead mt-2 mt-md-0 mt-lg-0">{{ request.user.username }}</p>
+				<p>Unique User Id:
+					<span class="text-info">{{ request.user.id }}</span>
+				</p>
+				<form method="post">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col">
+							<input type="text" class="form-control" value="{{ request.user.first_name }}">
+						</div>
+						<div class="col">
+							<input type="text" class="form-control" value="{{ request.user.last_name }}">
+						</div>
+					</div>
+					<div class="form-group mt-3">
+						<input type="email" class="form-control" value="{{ request.user.email }}" spellcheck="false" />
+					</div>
+				</form>
+				<script>
+					$(document).ready(function(e) {
+						const btnComponent = `
+						<div class="form-group mt-3">
+							<button type="submit" class="btn btn-primary float-end border-0">Update</button>
+						</div>
+						`;
+						const $form = $("form").eq(2);
+						$form.find("input").on("change", function() {
+							console.log("Hello");
+						});
+					});
+				</script>
+			</div>
+			<a href="#" class="float-start">
+				<button type="button" class="btn btn-primary position-relative">My Friends
+					<span
+						class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-primary">
+						99
+					</span>
+				</button>
+			</a>
+			<a href="{% url 'password_change' %}" class="float-end">
+				<button type="button" class="btn btn-warning">Change Password</button>
+			</a>
+		</div>
 	</div>
+</div>
 </div>
 
 {% endblock content %}
