@@ -1,7 +1,8 @@
 from django.urls import reverse_lazy
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
+from django.shortcuts import redirect
 from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
@@ -11,18 +12,21 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetDoneView,
     PasswordChangeView,
-    PasswordChangeDoneView
+    PasswordChangeDoneView,
 )
+from PIL import Image
+import base64
+from io import BytesIO
 from .forms import (
 	LoginForm,
 	CustomUserCreationForm,
 	CustomPasswordResetForm,
 	CustomPasswordResetConfirmForm,
-    CustomPasswordChangeForm
+    CustomPasswordChangeForm,
+    UserUpdateForm,
 )
 
 User = get_user_model()
-
 
 class CustomLoginView(LoginView):
     form_class = LoginForm
@@ -82,3 +86,28 @@ class CustomPasswordChangeView( PasswordChangeView):
 class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
     def dispatch(self, request, *args, **kwargs):
         return CustomLogoutView.as_view()(request)
+
+
+class ProfileEditView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserUpdateForm
+    template_name = 'account/edit.html'
+    success_url = reverse_lazy('profile')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+
+        cropped_image_data = self.request.POST.get('cropped_image') | None
+        if cropped_image_data:
+            cropped_image_data = cropped_image_data.split(',')[1]
+            cropped_image_data = base64.b64decode(cropped_image_data)
+            cropped_image = Image.open(BytesIO(cropped_image_data))
+            cropped_image_io = BytesIO()
+            cropped_image.save(cropped_image_io, format='JPEG')
+            instance.profile_image.save(f'{instance.pk}_profile.jpg', cropped_image_io, save=False)
+
+        instance.save()
+        return redirect(self.success_url)

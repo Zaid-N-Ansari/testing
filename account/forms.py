@@ -147,3 +147,9 @@ class CustomPasswordChangeForm(PasswordChangeForm):
             attrs={'class':'form-control'}
         ),
     )
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = UserAccount
+        fields = ['first_name', 'last_name', 'email', 'profile_image']

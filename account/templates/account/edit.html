@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock title %}
+{% load static %}
+{% block content %}
+
+<link type="text/css" rel="stylesheet" href="{% static 'cropperjs/dist/cropper.min.css' %}">
+<script src="{% static 'cropperjs/dist/cropper.min.js' %}"></script>
+
+<div class="container h-full">
+	<style>
+		div.container {
+			min-height: 100dvh;
+		}
+	</style>
+	<div class="row mt-5 justify-content-center h-100">
+		<div class="col-md-6 col-lg-4 col-12">
+			<div class="d-flex justify-content-center justify-content-md-start">
+				<div class="position-relative edit" style="width: 30dvh; height: 30dvh;">
+					<img class="rounded-circle w-100 h-100 img_edit" src="{{ request.user.profile_image.url }}"
+						alt="Profile Image" loading="lazy">
+					<span
+						class="material-icons text-dark position-absolute top-50 start-50 translate-middle p-2 rounded-circle span_edit">edit</span>
+				</div>
+				<script>
+					$(document).ready(function (e) {
+						$("span.span_edit").css("opacity", "0");
+						$("div.edit").on("mouseenter", function (e) {
+							$(this).children("img.img_edit").css({
+								"opacity": "0.8",
+								"transition": "opacity 200ms ease"
+							});
+							$(this).children("span.span_edit").css({
+								"cursor": "pointer",
+								"opacity": "1",
+								"transition": "opacity 200ms ease"
+							});
+						});
+						$("div.edit").on("mouseleave", function (e) {
+							$(this).children("img.img_edit").css("opacity", "1");
+							$(this).children("span.span_edit").css("opacity", "0");
+						});
+					});
+				</script>
+			</div>
+		</div>
+		<div class="col-md-6 col-lg-4 col-10 text-center">
+			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-center mt-3 mt-md-0 mt-lg-0">
+				<form method="post" spellcheck="false" enctype="multipart/form-data">
+					{% csrf_token %}
+					<input class="d-none" type="file" name="profile_image" id="id_profile_image" onchange="readURL(this)" accept="image/*" />
+					<div class="row">
+						<div class="col">
+							<input type="text" class="form-control" value="{{ request.user.first_name }}">
+						</div>
+						<div class="col">
+							<input type="text" class="form-control" value="{{ request.user.last_name }}">
+						</div>
+					</div>
+					<div class="form-group mt-3">
+						<input type="email" class="form-control" value="{{ request.user.email }}" />
+					</div>
+				</form>
+				<div class="mt-3">
+					<a href="{% url 'profile' request.user.username %}" class="float-start">
+						<button type="button" class="btn btn-danger">
+							Back
+						</button>
+					</a>
+					<a href="{% url 'home' %}" class="float-end">
+						<button type="button" class="btn btn-success">Save Changes</button>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script>
+	$("div.edit > span.span_edit").on("click", function () {
+		$("input[type='file']").click();
+		$(this).css("display", "none");
+	});
+	function readURL(input) {
+		if (input.files && input.files[0]) {
+			const reader = new FileReader();
+
+			reader.onload = function (e) {
+				let image = e.target.result;
+				const imageField = document.getElementsByTagName("img")[1];
+				imageField.src = image;
+				const cropper = new Cropper(imageField, {
+					aspectRatio: 1,
+					viewMode: 1,
+					autoCropArea: 1,
+					background: false,
+					initialAspectRatio: 1,
+					crop(event) {
+						console.log(event.detail.x);
+						console.log(event.detail.y);
+						console.log(event.detail.width);
+						console.log(event.detail.height);
+						console.log(event.detail.rotate);
+						console.log(event.detail.scaleX);
+						console.log(event.detail.scaleY);
+					},
+					cropend() {
+						const canvas = cropper.getCroppedCanvas();
+						canvas.toBlob(function (blob) {
+							const url = URL.createObjectURL(blob);
+							const hiddenInput = document.getElementById('croppedImage');
+							hiddenInput.value = url;
+						});
+					}
+				});
+			};
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+</script>
+
+
+{% endblock content %}

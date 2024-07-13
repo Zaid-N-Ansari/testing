@@ -7,7 +7,8 @@ from .views import (
 	CustomPasswordResetView,
 	CustomPasswordResetConfirmView,
 	CustomPasswordChangeView,
-	CustomPasswordChangeDoneView
+	CustomPasswordChangeDoneView,
+	ProfileEditView,
 )
 from django.contrib.auth.views import PasswordResetDoneView, PasswordResetCompleteView
 
@@ -17,6 +18,8 @@ urlpatterns = [
 	path('logout/', CustomLogoutView.as_view(), name='logout'),
 
 	path('register/', RegisterView.as_view(), name='register'),
+
+    path('edit/<str:username>/', ProfileEditView.as_view(), name='edit'),
 
 	path('profile/<str:username>/', ProfileView.as_view(), name='profile'),
 
