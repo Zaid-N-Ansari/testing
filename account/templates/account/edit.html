@@ -62,6 +62,16 @@
 					<div class="form-group mt-3">
 						{{ form.email.label_tag }}
 						{{ form.email }}
+						{% if form.email.errors %}
+						<div class="alert alert-danger alert-dismissible fade show ps-2 p-0 d-flex flex-row align-items-center justify-content-between" role="alert">
+							<div>
+								{% for error in form.email.errors %}
+								<p class="mb-0">{{ error }}</p>
+								{% endfor %}
+							</div>
+							<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger" data-dismiss="alert" aria-label="Close">&times;</button>
+						</div>
+						{% endif %}
 					</div>
 				</form>
 				<div class="mt-3">
@@ -70,11 +80,8 @@
 							Back
 						</button>
 					</a>
-					<a href="{% url 'edit-done' request.user.username %}" class="float-end">
+					<a href="{% url 'edit-done' request.user.username %}" class="float-end test">
 						<button type="button" class="btn btn-success">Save Changes</button>
-					</a>
-					<a href="#" class="float-end test">
-						<button type="button" class="btn btn-success">Test Save Changes</button>
 					</a>
 				</div>
 			</div>
@@ -85,26 +92,26 @@
 
 <script>
 	let x,y,w,h, imgStr;
+
 	$("div.edit > span.span_edit").on("click", function () {
 		$("input[type='file']").click();
 		$(this).css("display", "none");
 	});
+
 	$("a.test").on("click", function (e) {
-		e.preventDefault();
 		sendToBackend();
 	});
+
 	function sendToBackend() {
+		const img = isImgSizeValid(imgStr)
 		var reqData = {
 			"csrfmiddlewaretoken": "{{ csrf_token }}",
-			"image": imgStr,
+			"image": img,
 			"x": x,
 			"y": y,
 			"w": w,
 			"h": h
 		};
-
-		console.log(reqData);
-
 		$.ajax({
 			type: "POST",
 			dataType: "json",
@@ -122,6 +129,20 @@
 			}
 		});
 	}
+
+	function isImgSizeValid(img) {
+		var startIndex = img.indexOf("base64,") + 7;
+		var base64Str = img.substr(startIndex);
+		var decode = atob(base64Str);
+		if (decode.length >= 10485760) {
+			console.log("Image File Size Exceded, should not be greater than 10 MB");
+			return null;
+		}
+		console.log(base64Str);
+		return base64Str;
+
+	}
+
 	function readURL(input) {
 		if (input.files && input.files[0]) {
 			const reader = new FileReader();
@@ -133,10 +154,8 @@
 				imageField.src = image;
 				const cropper = new Cropper(imageField, {
 					aspectRatio: 1,
-					viewMode: 1,
 					autoCropArea: 1,
 					background: false,
-					initialAspectRatio: 1,
 					cropstart() {
 						$("span.point-se").css({
 							"height":"5px",

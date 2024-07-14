@@ -1,3 +1,4 @@
+from typing import Any
 from django.conf import settings
 from .models import UserAccount
 from django import forms
@@ -118,7 +119,6 @@ class CustomPasswordResetConfirmForm(SetPasswordForm):
     
     def save(self, commit=True):
         password = self.cleaned_data['new_password1']
-        self.user
         self.user.set_password(password)
         if commit:
             self.user.save()

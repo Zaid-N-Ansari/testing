@@ -1,13 +1,21 @@
-import json
-from os.path import join
+from os.path import join, exists
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+import cv2
+from json import dumps
+from django.core.files.storage import FileSystemStorage
+from base64 import b64decode
+from django.core.files import File
+from os import mkdir
+import shutil
+from concurrent.futures import ThreadPoolExecutor
+from django.views import View
 from django.contrib.auth.views import (
 	LoginView,
     LogoutView,
@@ -17,12 +25,6 @@ from django.contrib.auth.views import (
     PasswordChangeView,
     PasswordChangeDoneView,
 )
-from PIL import Image
-import base64
-from io import BytesIO
-import cv2
-
-from ChatApp.settings import BASE_DIR
 from .forms import (
 	LoginForm,
 	CustomUserCreationForm,
@@ -104,56 +106,60 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return self.request.user
 
     def form_valid(self, form):
-        instance = form.save(commit=False)
-
-        cropped_image_data = self.request.POST.get('cropped_image') | None
-        if cropped_image_data:
-            cropped_image_data = cropped_image_data.split(',')[1]
-            cropped_image_data = base64.b64decode(cropped_image_data)
-            cropped_image = Image.open(BytesIO(cropped_image_data))
-            cropped_image_io = BytesIO()
-            cropped_image.save(cropped_image_io, format='JPEG')
-            instance.profile_image.save(f'{instance.pk}_profile.jpg', cropped_image_io, save=False)
-
-        instance.save()
         return redirect(self.success_url)
 
-from django.core.files.storage import FileSystemStorage
-from base64 import b64decode
-from django.core.files import File
-@login_required
-def edit_done(request, *args, **kwargs):
-    dic = {}
-    if request.method == 'POST':
-        data = request.POST
+
+class ProfileImageView(LoginRequiredMixin, View):
+    def save_tmp_profile_img(self, imgStr, user):
+        try:
+            if not exists('temp'):
+                mkdir('temp')
+            if not exists(f'temp/{user.pk}'):
+                mkdir(f'temp/{user.pk}')
+                
+            url = join(f'temp/{user.pk}', f'{user.pk}_profile_img.png')
+            storage = FileSystemStorage(location=url)
+            img = b64decode(imgStr)
+            with storage.open('', 'wb+') as dest:
+                dest.write(img)
+                dest.close()
+            
+            return url
+        except Exception as e:
+            if str(e) == 'Incorrect padding':
+                imgStr += '=' * ((4 - len(imgStr) % 4) % 4)
+                return self.save_tmp_profile_img(imgStr, user)
+
+    def remove_directory(self, path):
+        try:
+            shutil.rmtree(path)
+        except Exception as e:
+            print(f"Error removing directory {path}: {e}")
+            
+    def get(self, request, *args, **kwargs):
+        print(f'\n\n{request.POST.get('first_name')}\n\n{args}\n\n{kwargs}\n\n{request}')
+        payload = {
+            'result': request.method,
+            'firstname': kwargs
+		}
+        return HttpResponse(dumps(payload), content_type='application/json')
+
+    def post(self, request, *args, **kwargs):
+        payload = {}
         user = request.user
-        keys = ['x','y','w','h', 'image']
-        if any(data.get(key) is not None for key in keys):
-            [cropX,cropY,cropW,cropH,imgStr] = [data.get(key) for key in keys]
+        try:
+            imgStr = request.POST.get('image')
+            url = self.save_tmp_profile_img(imgStr, user)
+            img = cv2.imread(url)
+            cropX = int(float(str(request.POST.get('x'))))
+            cropY = int(float(str(request.POST.get('y'))))
+            cropW = int(float(str(request.POST.get('w'))))
+            cropH = int(float(str(request.POST.get('h'))))
 
-
-            try:
-                url = join(f'{BASE_DIR}/temp/{user.pk}', f'{user.pk}_tmp_img.png')
-
-                storage = FileSystemStorage(location=url)
-
-                img = b64decode(imgStr)
-
-                with storage.open('', 'wb+') as dest:
-                    dest.write(img)
-                    dest.close()
-            except Exception as e:
-                if str(e) == 'Incorrect padding':
-                    imgStr += '=' * ((4 - len(imgStr) % 4) % 4)
-                url = join(f'{BASE_DIR}/temp/{user.pk}', f'{user.pk}_tmp_img.png')
-
-                storage = FileSystemStorage(location=url)
-
-                img = b64decode(imgStr)
-
-                with storage.open('', 'wb+') as dest:
-                    dest.write(img)
-                    dest.close()
+            if cropX < 0:
+                cropX = 0
+            if cropY < 0:
+                cropY = 0
 
             crop_img = img[cropY:cropY+cropH, cropX:cropX+cropW]
 
@@ -165,8 +171,13 @@ def edit_done(request, *args, **kwargs):
 
             user.save()
 
-            dic['result'] = 'success'
-        
-        dic['result'] = 'Points Not Defined'
+            payload['result'] = 'success'
+			
+            with ThreadPoolExecutor() as executor:
+                executor.submit(self.remove_directory, f'temp/{user.pk}')
 
-        return JsonResponse(dic)
+        except Exception as e:
+            print(e)
+
+		
+        return HttpResponse(dumps(payload), content_type='application/json')

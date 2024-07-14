@@ -1,4 +1,8 @@
 from django.urls import path
+from django.contrib.auth.views import (
+	PasswordResetDoneView,
+	PasswordResetCompleteView
+)
 from .views import (
 	RegisterView,
 	ProfileView,
@@ -9,9 +13,8 @@ from .views import (
 	CustomPasswordChangeView,
 	CustomPasswordChangeDoneView,
 	ProfileEditView,
-	edit_done
+	ProfileImageView
 )
-from django.contrib.auth.views import PasswordResetDoneView, PasswordResetCompleteView
 
 urlpatterns = [
 	path('login/', CustomLoginView.as_view(), name='login'),
@@ -22,7 +25,7 @@ urlpatterns = [
 
     path('edit/<str:username>/', ProfileEditView.as_view(), name='edit'),
 
-    path('edit/<str:username>/done/', edit_done, name='edit-done'),
+    path('edit/<str:username>/done/', ProfileImageView.as_view(), name='edit-done'),
 
 	path('profile/<str:username>/', ProfileView.as_view(), name='profile'),
 
