@@ -13,39 +13,41 @@
 		<div class="col-md-6 col-lg-4 col-12">
 			<div class="d-flex justify-content-center justify-content-md-start">
 				<div style="width: 30dvh; height: 30dvh;">
-					<img class="rounded-circle img_edit w-100 h-100" src="{{ request.user.profile_image.url }}" alt="Profile Image" loading="lazy">
+					<img class="rounded-circle img_edit w-100 h-100" src="{{ request.user.profile_image.url }}"
+						alt="Profile Image" loading="lazy">
 				</div>
 			</div>
 		</div>
 		<div class="col-md-6 col-lg-4 col-10 text-center">
-			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-center">
+			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-center user-select-none">
 				<div class="d-flex align-items-center justify-content-center mb-3">
 					<p class="lead mt-2 mt-md-0 mb-0 mt-lg-0 w-100">
 						{{ request.user.username }}
 					</p>
 					<a href="{% url 'edit' request.user.username %}" class="float-start">
-						<span class="material-icons">settings</span>
+						<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Profile">settings</span>
 					</a>
+					<script>
+						var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+						var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+							return new bootstrap.Tooltip(tooltipTriggerEl)
+						})
+					</script>
 				</div>
 				<p>Unique User Id:
 					<span class="text-info">{{ request.user.id }}</span>
 				</p>
-				<form method="post" enctype="multipart/form-data">
-					{% csrf_token %}
-					<input class="d-none" type="file" name="profile_image" id="id_profile_image"
-						onchange="readURL(this)" accept="image/*">
-					<div class="row">
-						<div class="col">
-							<input type="text" class="form-control" value="{{ request.user.first_name }}">
-						</div>
-						<div class="col">
-							<input type="text" class="form-control" value="{{ request.user.last_name }}">
-						</div>
+				<div class="row">
+					<div class="col">
+						<span class="form-control">{{ request.user.first_name }}</span>
 					</div>
-					<div class="form-group mt-3">
-						<input type="email" class="form-control" value="{{ request.user.email }}" spellcheck="false" />
+					<div class="col">
+						<span class="form-control">{{ request.user.last_name }}</span>
 					</div>
-				</form>
+				</div>
+				<div class="form-group mt-3">
+					<span type="email" class="form-control">{{ request.user.email }}</span>
+				</div>
 			</div>
 			<a href="#" class="float-start">
 				<button type="button" class="btn btn-primary position-relative">My Friends

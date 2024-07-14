@@ -1,9 +1,12 @@
+import json
+from os.path import join
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect
-from django.http import Http404
+from django.contrib.auth.decorators import login_required
+from django.http import Http404, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
 	LoginView,
@@ -17,6 +20,9 @@ from django.contrib.auth.views import (
 from PIL import Image
 import base64
 from io import BytesIO
+import cv2
+
+from ChatApp.settings import BASE_DIR
 from .forms import (
 	LoginForm,
 	CustomUserCreationForm,
@@ -111,3 +117,56 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
 
         instance.save()
         return redirect(self.success_url)
+
+from django.core.files.storage import FileSystemStorage
+from base64 import b64decode
+from django.core.files import File
+@login_required
+def edit_done(request, *args, **kwargs):
+    dic = {}
+    if request.method == 'POST':
+        data = request.POST
+        user = request.user
+        keys = ['x','y','w','h', 'image']
+        if any(data.get(key) is not None for key in keys):
+            [cropX,cropY,cropW,cropH,imgStr] = [data.get(key) for key in keys]
+
+
+            try:
+                url = join(f'{BASE_DIR}/temp/{user.pk}', f'{user.pk}_tmp_img.png')
+
+                storage = FileSystemStorage(location=url)
+
+                img = b64decode(imgStr)
+
+                with storage.open('', 'wb+') as dest:
+                    dest.write(img)
+                    dest.close()
+            except Exception as e:
+                if str(e) == 'Incorrect padding':
+                    imgStr += '=' * ((4 - len(imgStr) % 4) % 4)
+                url = join(f'{BASE_DIR}/temp/{user.pk}', f'{user.pk}_tmp_img.png')
+
+                storage = FileSystemStorage(location=url)
+
+                img = b64decode(imgStr)
+
+                with storage.open('', 'wb+') as dest:
+                    dest.write(img)
+                    dest.close()
+
+            crop_img = img[cropY:cropY+cropH, cropX:cropX+cropW]
+
+            cv2.imwrite(url, crop_img)
+
+            user.profile_image.delete()
+
+            user.profile_image.save('profile_image.png', File(open(url, 'rb')))
+
+            user.save()
+
+            dic['result'] = 'success'
+        
+        dic['result'] = 'Points Not Defined'
+
+        return JsonResponse(dic)

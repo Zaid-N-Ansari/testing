@@ -43,21 +43,25 @@
 				</script>
 			</div>
 		</div>
-		<div class="col-md-6 col-lg-4 col-10 text-center">
+		<div class="col-md-6 col-lg-4 col-10">
 			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-center mt-3 mt-md-0 mt-lg-0">
 				<form method="post" spellcheck="false" enctype="multipart/form-data">
 					{% csrf_token %}
-					<input class="d-none" type="file" name="profile_image" id="id_profile_image" onchange="readURL(this)" accept="image/*" />
+					<input class="d-none" type="file" name="profile_image" id="id_profile_image"
+						onchange="readURL(this)" accept="image/*" />
 					<div class="row">
 						<div class="col">
-							<input type="text" class="form-control" value="{{ request.user.first_name }}">
+							{{ form.first_name.label_tag }}
+							{{ form.first_name }}
 						</div>
 						<div class="col">
-							<input type="text" class="form-control" value="{{ request.user.last_name }}">
+							{{ form.last_name.label_tag }}
+							{{ form.last_name }}
 						</div>
 					</div>
 					<div class="form-group mt-3">
-						<input type="email" class="form-control" value="{{ request.user.email }}" />
+						{{ form.email.label_tag }}
+						{{ form.email }}
 					</div>
 				</form>
 				<div class="mt-3">
@@ -66,8 +70,11 @@
 							Back
 						</button>
 					</a>
-					<a href="{% url 'home' %}" class="float-end">
+					<a href="{% url 'edit-done' request.user.username %}" class="float-end">
 						<button type="button" class="btn btn-success">Save Changes</button>
+					</a>
+					<a href="#" class="float-end test">
+						<button type="button" class="btn btn-success">Test Save Changes</button>
 					</a>
 				</div>
 			</div>
@@ -77,16 +84,51 @@
 
 
 <script>
+	let x,y,w,h, imgStr;
 	$("div.edit > span.span_edit").on("click", function () {
 		$("input[type='file']").click();
 		$(this).css("display", "none");
 	});
+	$("a.test").on("click", function (e) {
+		e.preventDefault();
+		sendToBackend();
+	});
+	function sendToBackend() {
+		var reqData = {
+			"csrfmiddlewaretoken": "{{ csrf_token }}",
+			"image": imgStr,
+			"x": x,
+			"y": y,
+			"w": w,
+			"h": h
+		};
+
+		console.log(reqData);
+
+		$.ajax({
+			type: "POST",
+			dataType: "json",
+			url: "{% url 'edit-done' request.user.username %}",
+			data: reqData,
+			timeout: 3000,
+			success: function (data) {
+				console.log("Success : ",data);
+			},
+			error: function (data) {
+				console.error(data);
+			},
+			complete: function (data) {
+				console.log("Complete : ",data);
+			}
+		});
+	}
 	function readURL(input) {
 		if (input.files && input.files[0]) {
 			const reader = new FileReader();
 
 			reader.onload = function (e) {
 				let image = e.target.result;
+				console.log(image);
 				const imageField = document.getElementsByTagName("img")[1];
 				imageField.src = image;
 				const cropper = new Cropper(imageField, {
@@ -95,22 +137,22 @@
 					autoCropArea: 1,
 					background: false,
 					initialAspectRatio: 1,
-					crop(event) {
-						console.log(event.detail.x);
-						console.log(event.detail.y);
-						console.log(event.detail.width);
-						console.log(event.detail.height);
-						console.log(event.detail.rotate);
-						console.log(event.detail.scaleX);
-						console.log(event.detail.scaleY);
-					},
-					cropend() {
-						const canvas = cropper.getCroppedCanvas();
-						canvas.toBlob(function (blob) {
-							const url = URL.createObjectURL(blob);
-							const hiddenInput = document.getElementById('croppedImage');
-							hiddenInput.value = url;
+					cropstart() {
+						$("span.point-se").css({
+							"height":"5px",
+							"width":"5px",
 						});
+					},
+					crop(event) {
+						console.log("x : ", event.detail.x);
+						console.log("y : ", event.detail.y);
+						console.log("w : ", event.detail.width);
+						console.log("h : ", event.detail.height);
+						imgStr = image;
+						x = event.detail.x;
+						y = event.detail.y;
+						w = event.detail.width;
+						h = event.detail.height;
 					}
 				});
 			};
