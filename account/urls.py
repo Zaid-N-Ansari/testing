@@ -12,8 +12,7 @@ from .views import (
 	CustomPasswordResetConfirmView,
 	CustomPasswordChangeView,
 	CustomPasswordChangeDoneView,
-	ProfileEditView,
-	ProfileImageView
+	ProfileEditView
 )
 
 urlpatterns = [
@@ -23,11 +22,9 @@ urlpatterns = [
 
 	path('register/', RegisterView.as_view(), name='register'),
 
-    path('edit/<str:username>/', ProfileEditView.as_view(), name='edit'),
-
-    path('edit/<str:username>/done/', ProfileImageView.as_view(), name='edit-done'),
-
 	path('profile/<str:username>/', ProfileView.as_view(), name='profile'),
+
+    path('edit/<str:username>/', ProfileEditView.as_view(), name='edit'),
 
     path(
         "password-change/", CustomPasswordChangeView.as_view(), name="password_change"

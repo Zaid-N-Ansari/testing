@@ -63,35 +63,38 @@
 						{{ form.email.label_tag }}
 						{{ form.email }}
 						{% if form.email.errors %}
-						<div class="alert alert-danger alert-dismissible fade show ps-2 p-0 d-flex flex-row align-items-center justify-content-between" role="alert">
+						<div class="alert alert-danger alert-dismissible fade show ps-2 p-0 d-flex flex-row align-items-center justify-content-between"
+							role="alert">
 							<div>
 								{% for error in form.email.errors %}
 								<p class="mb-0">{{ error }}</p>
 								{% endfor %}
 							</div>
-							<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger" data-dismiss="alert" aria-label="Close">&times;</button>
+							<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger"
+								data-dismiss="alert" aria-label="Close">&times;</button>
 						</div>
 						{% endif %}
 					</div>
+					<div class="mt-3">
+						<a href="{% url 'profile' request.user.username %}" class="float-start">
+							<button type="button" class="btn btn-danger">
+								Back
+							</button>
+						</a>
+						<a href="{% url 'edit' request.user.username %}" class="float-end test">
+							<button role="button" type="submit" class="btn btn-success">Save Changes{{payload}}</button>
+						</a>
+						
 				</form>
-				<div class="mt-3">
-					<a href="{% url 'profile' request.user.username %}" class="float-start">
-						<button type="button" class="btn btn-danger">
-							Back
-						</button>
-					</a>
-					<a href="{% url 'edit-done' request.user.username %}" class="float-end test">
-						<button type="button" class="btn btn-success">Save Changes</button>
-					</a>
-				</div>
 			</div>
 		</div>
 	</div>
 </div>
+</div>
 
 
 <script>
-	let x,y,w,h, imgStr;
+	let x = '0', y = '0', w = '0', h = '0', imgStr = '';
 
 	$("div.edit > span.span_edit").on("click", function () {
 		$("input[type='file']").click();
@@ -103,29 +106,34 @@
 	});
 
 	function sendToBackend() {
-		const img = isImgSizeValid(imgStr)
 		var reqData = {
 			"csrfmiddlewaretoken": "{{ csrf_token }}",
-			"image": img,
-			"x": x,
-			"y": y,
-			"w": w,
-			"h": h
+			"first_name": $("input[name='first_name']").val(),
+			"last_name": $("input[name='last_name']").val(),
+			"email": $("input[name='email']").val(),
 		};
+
+		if (x !== '0' || y !== '0' || w !== '0' || h !== '0') {
+			const img = isImgSizeValid(imgStr);
+			if (img) {
+				reqData["image"] = img;
+				reqData["x"] = x;
+				reqData["y"] = y;
+				reqData["w"] = w;
+				reqData["h"] = h;
+			}
+		}
 		$.ajax({
 			type: "POST",
 			dataType: "json",
-			url: "{% url 'edit-done' request.user.username %}",
+			url: "{% url 'edit' request.user.username %}",
 			data: reqData,
 			timeout: 3000,
 			success: function (data) {
-				console.log("Success : ",data);
-			},
-			error: function (data) {
-				console.error(data);
+				console.log("Success : ", data);
 			},
 			complete: function (data) {
-				console.log("Complete : ",data);
+				console.info("Complete : ", data);
 			}
 		});
 	}
@@ -138,7 +146,6 @@
 			console.log("Image File Size Exceded, should not be greater than 10 MB");
 			return null;
 		}
-		console.log(base64Str);
 		return base64Str;
 
 	}
@@ -149,24 +156,17 @@
 
 			reader.onload = function (e) {
 				let image = e.target.result;
-				console.log(image);
 				const imageField = document.getElementsByTagName("img")[1];
 				imageField.src = image;
 				const cropper = new Cropper(imageField, {
 					aspectRatio: 1,
 					autoCropArea: 1,
 					background: false,
-					cropstart() {
-						$("span.point-se").css({
-							"height":"5px",
-							"width":"5px",
-						});
-					},
 					crop(event) {
-						console.log("x : ", event.detail.x);
-						console.log("y : ", event.detail.y);
-						console.log("w : ", event.detail.width);
-						console.log("h : ", event.detail.height);
+						$("span.point-se").css({
+							"height": "5px",
+							"width": "5px",
+						});
 						imgStr = image;
 						x = event.detail.x;
 						y = event.detail.y;
