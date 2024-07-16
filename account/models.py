@@ -46,26 +46,52 @@ def generate_unique_username():
 
 
 class UserAccount(AbstractBaseUser):
-    id = models.CharField(max_length=8, primary_key=True, default=generate_unique_username)
+    id = models.CharField(
+            max_length=8,
+            primary_key=True,
+            default=generate_unique_username
+    )
+
     first_name = models.CharField(
         max_length=10,
         blank=False,
         null=False
     )
+
     last_name = models.CharField(
         max_length=10,
         blank=False,
         null=False
     )
+
     username = models.CharField(max_length=30, unique=True)
-    email = models.EmailField(verbose_name="email", max_length=60, unique=True)
-    date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True, editable=False)
-    last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
+
+    email = models.EmailField(
+        verbose_name="email",
+        max_length=60,
+        unique=True
+    )
+    date_joined = models.DateTimeField(
+        verbose_name='date joined',
+        auto_now_add=True,
+        editable=False
+    )
+    last_login = models.DateTimeField(
+        verbose_name='last login',
+        auto_now=True
+    )
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    profile_image = models.ImageField(max_length=255, upload_to=get_profile_image_filepath, null=True, blank=True, default=get_profile_image)
+
+    profile_image = models.ImageField(
+        max_length=255,
+        upload_to=get_profile_image_filepath,
+        default=get_profile_image,
+        null=True,
+        blank=True
+    )
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email']

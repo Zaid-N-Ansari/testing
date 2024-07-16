@@ -44,15 +44,15 @@
 				<div class="dropdown text-end">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
 						data-bs-toggle="dropdown" aria-expanded="false">
-						<img src="{{ request.user.profile_image.url }}" alt="User Profile Image" width="40" height="40"
+						<img src="{{request.user.profile_image.url}}" alt="User Profile Image" width="40" height="40"
 							class="rounded-circle" />
 					</a>
 					<ul class="dropdown-menu text-small">
 						<li>
-							<a class="dropdown-item" href="{% url 'profile' request.user.username %}">Profile</a>
+							<a class="dropdown-item" href="{% url 'account:profile' request.user.username %}">Profile</a>
 						</li>
 						<li>
-							<form class="dropdown-item text-danger" action="{% url 'logout' %}" method="post">
+							<form class="dropdown-item text-danger" action="{% url 'account:logout' %}" method="post">
 								{% csrf_token %}
 								<button type="submit"
 									class="dropdown-item text-danger d-flex align-items-center justify-content-between p-0">Log
@@ -66,12 +66,12 @@
 			</div>
 			{% else %}
 			<div class="d-md-flex d-lg-flex d-none w-100 justify-content-md-end">
-				<a href="{% url 'login' %}" class="me-lg-3">
+				<a href="{% url 'account:login' %}" class="me-lg-3">
 					<button type="button" class="bg-transparent border-0 d-flex align-items-center text-success">Log In
 						<span class="material-icons">login</span>
 					</button>
 				</a>
-				<a href="{% url 'register' %}" class="">
+				<a href="{% url 'account:register' %}" class="">
 					<button type="button" class="bg-transparent border-0 d-flex align-items-center text-warning">Sign Up
 						<span class="material-icons">person_add</span>
 					</button>
@@ -84,7 +84,7 @@
 				</button>
 				<ul class="dropdown-menu text-small shadow-lg">
 					<li class="mb-1">
-						<a class="dropdown-item" href="{% url 'login' %}">
+						<a class="dropdown-item" href="{% url 'account:login' %}">
 							<button type="button"
 								class="bg-transparent border-0 d-flex align-items-center text-success">Log In
 								<span class="material-icons ms-1">login</span>
@@ -92,7 +92,7 @@
 						</a>
 					</li>
 					<li>
-						<a class="dropdown-item" href="{% url 'register' %}">
+						<a class="dropdown-item" href="{% url 'account:register' %}">
 							<button type="button"
 								class="bg-transparent border-0 d-flex align-items-center text-warning">Sign
 								Up

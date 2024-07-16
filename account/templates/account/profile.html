@@ -9,7 +9,7 @@
 			min-height: 100dvh;
 		}
 	</style>
-	<div class="row mt-5 justify-content-center h-100">
+	<div class="row mt-5 justify-content-center h-100 shadow">
 		<div class="col-md-6 col-lg-4 col-12">
 			<div class="d-flex justify-content-center justify-content-md-start">
 				<div style="width: 30dvh; height: 30dvh;">
@@ -24,7 +24,7 @@
 					<p class="lead mt-2 mt-md-0 mb-0 mt-lg-0 w-100">
 						{{ request.user.username }}
 					</p>
-					<a href="{% url 'edit' request.user.username %}" class="float-start">
+					<a href="{% url 'account:edit' request.user.username %}" class="float-start">
 						<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Profile">settings</span>
 					</a>
 					<script>
@@ -48,18 +48,20 @@
 				<div class="form-group mt-3">
 					<span type="email" class="form-control">{{ request.user.email }}</span>
 				</div>
+				<div class="form-group mt-3">
+					<a href="#" class="float-start">
+						<button type="button" class="btn btn-primary position-relative">My Friends
+							<span
+								class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-primary">
+								99
+							</span>
+						</button>
+					</a>
+					<a href="{% url 'account:password_change' %}" class="float-end">
+						<button type="button" class="btn btn-warning">Change Password</button>
+					</a>
+				</div>
 			</div>
-			<a href="#" class="float-start">
-				<button type="button" class="btn btn-primary position-relative">My Friends
-					<span
-						class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-primary">
-						99
-					</span>
-				</button>
-			</a>
-			<a href="{% url 'password_change' %}" class="float-end">
-				<button type="button" class="btn btn-warning">Change Password</button>
-			</a>
 		</div>
 	</div>
 </div>

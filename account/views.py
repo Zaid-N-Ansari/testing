@@ -95,7 +95,6 @@ class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
 
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
-    success_url = reverse_lazy('profile')
     def get(self, request, *args, **kwargs):
         user = request.user
         form = UserUpdateForm(instance=user)
@@ -111,6 +110,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
                 y = int(float(str(data.get('y'))))
                 w = int(float(str(data.get('w'))))
                 h = int(float(str(data.get('h'))))
+
                 imgStr = data.get('image')
                 url = self.save_tmp_img(imgStr, user)
                 img = cv2.imread(url)

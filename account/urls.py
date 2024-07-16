@@ -15,6 +15,8 @@ from .views import (
 	ProfileEditView
 )
 
+app_name = 'account'
+
 urlpatterns = [
 	path('login/', CustomLoginView.as_view(), name='login'),
 
