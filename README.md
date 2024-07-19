@@ -1,7 +1,7 @@
 ## Installation
 - git clone https://github.com/Zaid-N-Ansari/testing.git
 - cd testing
-- Create and Activate virtual envisronment of choice
+- Create and Activate virtual environment of choice
 - Install the requirements to run the Django Web App on your local machine:
 - pip install -r requirements.txt
 

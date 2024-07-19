@@ -99,7 +99,7 @@ class UserAccount(AbstractBaseUser):
     objects = UserAccountManager()
 
     def __str__(self):
-        return f'{self.id} | {self.last_name}'
+        return f'{self.username}'
 
 	
     def has_perm(self, perm, obj=None):

@@ -1,11 +1,12 @@
 from os.path import join, exists
 from os import mkdir
+from urllib import request
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
-from django.shortcuts import redirect, render
-from django.http import Http404, HttpResponse
+from django.shortcuts import redirect, render, get_object_or_404
+from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
 import cv2
 from django.core.files.storage import FileSystemStorage
@@ -13,7 +14,8 @@ from base64 import b64decode
 from django.core.files import File
 import shutil
 from concurrent.futures import ThreadPoolExecutor
-from django.views import View
+from account.models import UserAccount
+from friend.models import Friend
 from django.contrib.auth.views import (
 	LoginView,
     LogoutView,
@@ -51,12 +53,23 @@ class ProfileView(LoginRequiredMixin, DetailView):
     slug_field = 'username'
     slug_url_kwarg = 'username'
 
-    def get_object(self, queryset=None):
+    def get_object(self):
         username = self.kwargs.get('username')
         try:
             return User.objects.get(username=username)
         except User.DoesNotExist:
             raise Http404("User does not exist")
+
+    def get_context_data(self, **kwargs):
+        # context = super().get_context_data(**kwargs)
+        # user_profile = self.get_object()
+        # friend_instance = get_object_or_404(Friend, user=user_profile)
+        # context['friends_count'] = friend_instance.friends.count()
+        # return context
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+        context['user'] = user
+        return context
 
 
 class CustomPasswordResetView(PasswordResetView):
@@ -78,7 +91,7 @@ class CustomPasswordResetConfirmView( PasswordResetConfirmView):
 class RegisterView(FormView):
     template_name = 'registration/register.html'
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('account:login')
 
     def form_valid(self, form):
         form.save()
@@ -90,6 +103,7 @@ class CustomPasswordChangeView( PasswordChangeView):
 
 
 class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
+    template_name = 'registration/password_change_done.html'
     def dispatch(self, request, *args, **kwargs):
         return CustomLogoutView.as_view()(request)
 
@@ -114,6 +128,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
                 imgStr = data.get('image')
                 url = self.save_tmp_img(imgStr, user)
                 img = cv2.imread(url)
+                print(imgStr,url)
 
                 crop_img = img[y:y+h, x:x+w]
                 cv2.imwrite(url, crop_img)
@@ -127,7 +142,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
                     executor.submit(self.remove_directory, f'temp/{user.pk}')
             if form.is_valid():
                 form.save()
-                return redirect(reverse('profile', kwargs={'username':user.username}))
+                return redirect(reverse('account:profile', kwargs={'username':user.username}))
         except Exception as e:
             print(e)
 
