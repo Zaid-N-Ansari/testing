@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.crypto import get_random_string
+from ChatApp import settings
 
 
 class UserAccountManager(BaseUserManager):
@@ -38,7 +39,7 @@ def get_profile_image_filepath(instance, filename):
 
 
 def get_profile_image():
-    return f'defaultpfi.jpg'
+    return f'ChatApp/defaultpfi.jpg'
 
 
 def generate_unique_username():
@@ -107,3 +108,4 @@ class UserAccount(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+    

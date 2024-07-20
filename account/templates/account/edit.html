@@ -12,14 +12,14 @@
 			min-height: 100dvh;
 		}
 	</style>
-	<div class="row mt-5 justify-content-center h-100 shadow">
+	<div class="row mt-5 justify-content-center h-100 shadow p-2">
 		<div class="col-md-6 col-lg-4 col-12">
 			<div class="d-flex justify-content-center justify-content-md-start">
 				<div class="position-relative edit" style="width: 30dvh; height: 30dvh;">
 					<img class="rounded-circle w-100 h-100 img_edit" src="{{ request.user.profile_image.url }}"
 						alt="Profile Image" loading="lazy">
 					<span
-						class="material-icons text-dark position-absolute top-50 start-50 translate-middle p-2 rounded-circle span_edit">edit</span>
+						class="material-icons text-primary position-absolute top-50 start-50 translate-middle p-2 rounded-circle span_edit">edit</span>
 				</div>
 				<script>
 					$(document).ready(function (e) {
@@ -47,8 +47,7 @@
 			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-center mt-3 mt-md-0 mt-lg-0">
 				<form method="post" spellcheck="false" enctype="multipart/form-data">
 					{% csrf_token %}
-					<input class="d-none my" type="file" name="profile_image" id="id_profile_image"
-						onchange="readURL(this)" accept="image/*" />
+					{{ form.profile_image }}
 					<div class="row">
 						<div class="col">
 							{{ form.first_name.label_tag }}
@@ -93,11 +92,10 @@
 
 
 <script>
-	let x = '0', y = '0', w = '0', h = '0', imgStr = '';
+	let x = 0, y = 0, w = 0, h = 0, imgStr = '';
 
-	$("div.edit > span.span_edit").on("click", function () {
+	$("span.span_edit").on("click", function () {
 		$("input[type='file']").click();
-		$(this).css("display", "none");
 	});
 
 	$("a.test").on("click", function (e) {
@@ -105,6 +103,8 @@
 	});
 
 	function sendToBackend() {
+		alert(x+"\n"+y+"\n"+h);
+		alert(typeof(x)+"\n"+typeof(y)+"\n"+typeof(h))
 		var reqData = {
 			"csrfmiddlewaretoken": "{{ csrf_token }}",
 			"first_name": $("input[name='first_name']").val(),
@@ -112,16 +112,17 @@
 			"email": $("input[name='email']").val(),
 		};
 
-		if (x !== '0' || y !== '0' || w !== '0' || h !== '0') {
+		if (x !== 0 || y !== 0 || h !== 0) {
 			const img = isImgSizeValid(imgStr);
 			if (img) {
 				reqData["image"] = img;
 				reqData["x"] = x;
 				reqData["y"] = y;
-				reqData["w"] = w;
 				reqData["h"] = h;
 			}
 		}
+
+		console.log(reqData);
 		$.ajax({
 			type: "POST",
 			dataType: "json",
@@ -130,8 +131,10 @@
 			timeout: 3000,
 			success: function (data) {
 				console.log("Success : ", data);
+				(data.status==="success")?location.reload(true):null;
 			},
 			complete: function (data) {
+				alert(data);
 				console.info("Complete : ", data);
 			}
 		});
@@ -142,7 +145,7 @@
 		var base64Str = img.substr(startIndex);
 		var decode = atob(base64Str);
 		if (decode.length >= 10485760) {
-			console.log("Image File Size Exceded, should not be greater than 10 MB");
+			alert("Image File Size Exceded, should not be greater than 10 MB");
 			return null;
 		}
 		return base64Str;
@@ -159,18 +162,18 @@
 				imageField.src = image;
 				const cropper = new Cropper(imageField, {
 					aspectRatio: 1,
-					autoCropArea: 1,
-					background: false,
+					viewMode: 1,
 					crop(event) {
+						$("span.span_edit").css("display","none");
 						$("span.point-se").css({
 							"height": "5px",
 							"width": "5px",
 						});
 						imgStr = image;
-						x = event.detail.x;
-						y = event.detail.y;
-						w = event.detail.width;
-						h = event.detail.height;
+						x = parseFloat(event.detail.x);
+						y = parseFloat(event.detail.y);
+						h = parseFloat(event.detail.height);
+						console.log(x+"\n"+y+"\n"+h);
 					}
 				});
 			};
@@ -178,6 +181,5 @@
 		}
 	}
 </script>
-
 
 {% endblock content %}

@@ -1,12 +1,13 @@
 from os.path import join, exists
 from os import mkdir
 from urllib import request
+from django.forms import ValidationError
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
 from django.shortcuts import redirect, render, get_object_or_404
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 import cv2
 from django.core.files.storage import FileSystemStorage
@@ -119,33 +120,40 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         data = request.POST
         form = UserUpdateForm(data, request.FILES, instance=user)
         try:
-            if not(data.get('x') is None or data.get('y') is None or data.get('w') is None or data.get('h') is None):
+            print(f'valx: {data.get('x')}')
+            print(f'valy: {data.get('y')}')
+            print(f'valh: {data.get('h')}')
+            print(f'valh_type: {type(data.get('h'))}')
+            if not(data.get('x') is None or data.get('y') is None or data.get('h') is None):
                 x = int(float(str(data.get('x'))))
                 y = int(float(str(data.get('y'))))
-                w = int(float(str(data.get('w'))))
                 h = int(float(str(data.get('h'))))
 
+                print(f'_valx: {x}')
+                print(f'_valy: {y}')
+                print(f'_valh: {h}')
                 imgStr = data.get('image')
                 url = self.save_tmp_img(imgStr, user)
                 img = cv2.imread(url)
-                print(imgStr,url)
 
-                crop_img = img[y:y+h, x:x+w]
+                crop_img = img[y:y+h, x:x+h]
                 cv2.imwrite(url, crop_img)
-                user.profile_image.delete()
 
-                user.profile_image.save('profile_image.png', File(open(url, 'rb')))
+                user.profile_image.delete(save=False)
 
-                user.save()
-                
+                user.profile_image.save('profile_image.png', File(open(url, 'rb+')))
+
+
                 with ThreadPoolExecutor() as executor:
                     executor.submit(self.remove_directory, f'temp/{user.pk}')
-            if form.is_valid():
-                form.save()
-                return redirect(reverse('account:profile', kwargs={'username':user.username}))
         except Exception as e:
             print(e)
 
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('account:profile', kwargs={'username':user.username}))
+        else:
+            ValidationError("naahh aah...")
         return render(request, 'account/edit.html', {'form': form})
 
     def save_tmp_img(self, imgStr, user):
