@@ -1,12 +1,14 @@
 from os.path import join, exists
 from os import mkdir
+from django.core import serializers
 from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404, redirect, render
-from django.http import Http404
+from django.db.models import Q
+from django.http import Http404, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 import cv2
 from django.core.files.storage import FileSystemStorage
@@ -23,7 +25,7 @@ from django.contrib.auth.views import (
     PasswordChangeView,
     PasswordChangeDoneView,
 )
-
+from account.models import UserAccount
 from friend.models import Friend
 from .forms import (
 	LoginForm,
@@ -173,7 +175,21 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
             print(f"Error removing directory {path}: {e}")
 
 class SearchView(View):
-    http_method_names = ['post', 'get']
+    http_method_names = ['get','post']
     def get(self, request, *args, **kwargs):
-        users = [args, kwargs]
-        return render(request, 'account/search.html', {'users': users})
+        return render(request, 'account/search.html')
+    def post(self, request, *args, **kwargs):
+        user = request.POST.get('user')
+        if user != '':
+            try:
+                result = UserAccount.objects.filter(
+                    Q(username__icontains=user) |
+                    Q(email__icontains=user) |
+                    Q(first_name__icontains=user) |
+                    Q(last_name__icontains=user)
+                ).order_by('last_name').values_list('username')
+                return JsonResponse(list(result), safe=False) if result.count() > 0 else JsonResponse({'result':None})
+            except Exception as e:
+                return JsonResponse({'result':e})
+        else:
+            return JsonResponse({'result':None})

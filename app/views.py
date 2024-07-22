@@ -1,6 +1,4 @@
-from django.shortcuts import render
-from account.forms import SearchUserForm
+from django.views.generic import TemplateView
 
-def home_view(request, *args, **kwargs):
-	form = SearchUserForm()
-	return render(request, 'app/home.html', {'user':False, 'form':form})
+class HomeView(TemplateView):
+    template_name = 'app/home.html'
