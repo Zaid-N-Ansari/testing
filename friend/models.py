@@ -7,11 +7,11 @@ class Friend(models.Model):
 			on_delete=models.CASCADE,
 			related_name='user'
 		)
-	
+
 	friends = models.ManyToManyField(
 		settings.AUTH_USER_MODEL,
 		blank=True,
-		related_name='friends'
+		related_name='friends',
 	)
 
 	def __str__(self):

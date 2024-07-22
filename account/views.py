@@ -1,13 +1,12 @@
 from os.path import join, exists
 from os import mkdir
-from urllib import request
-from django.forms import ValidationError
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy, reverse
+from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.contrib.auth import get_user_model
-from django.shortcuts import redirect, render, get_object_or_404
-from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.http import Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
 import cv2
 from django.core.files.storage import FileSystemStorage
@@ -15,8 +14,6 @@ from base64 import b64decode
 from django.core.files import File
 import shutil
 from concurrent.futures import ThreadPoolExecutor
-from account.models import UserAccount
-from friend.models import Friend
 from django.contrib.auth.views import (
 	LoginView,
     LogoutView,
@@ -26,6 +23,8 @@ from django.contrib.auth.views import (
     PasswordChangeView,
     PasswordChangeDoneView,
 )
+
+from friend.models import Friend
 from .forms import (
 	LoginForm,
 	CustomUserCreationForm,
@@ -62,13 +61,10 @@ class ProfileView(LoginRequiredMixin, DetailView):
             raise Http404("User does not exist")
 
     def get_context_data(self, **kwargs):
-        # context = super().get_context_data(**kwargs)
-        # user_profile = self.get_object()
-        # friend_instance = get_object_or_404(Friend, user=user_profile)
-        # context['friends_count'] = friend_instance.friends.count()
-        # return context
-        context = super().get_context_data(**kwargs)
         user = self.get_object()
+        context = super().get_context_data(**kwargs)
+        user_acc = Friend.objects.get_or_create(user=user)
+        context['friends_count'] = user_acc[0].friends.count()
         context['user'] = user
         return context
 
@@ -111,8 +107,7 @@ class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
-        user = request.user
-        form = UserUpdateForm(instance=user)
+        form = UserUpdateForm(instance=request.user)
         return render(request, 'account/edit.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
@@ -120,50 +115,46 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         data = request.POST
         form = UserUpdateForm(data, request.FILES, instance=user)
         try:
-            print(f'valx: {data.get('x')}')
-            print(f'valy: {data.get('y')}')
-            print(f'valh: {data.get('h')}')
-            print(f'valh_type: {type(data.get('h'))}')
-            if not(data.get('x') is None or data.get('y') is None or data.get('h') is None):
-                x = int(float(str(data.get('x'))))
-                y = int(float(str(data.get('y'))))
-                h = int(float(str(data.get('h'))))
+            if data.get('x') or data.get('y') or data.get('s'):
+                x = int(float(data.get('x')))
+                y = int(float(data.get('y')))
+                s = int(float(data.get('s')))
 
-                print(f'_valx: {x}')
-                print(f'_valy: {y}')
-                print(f'_valh: {h}')
                 imgStr = data.get('image')
+
                 url = self.save_tmp_img(imgStr, user)
+
                 img = cv2.imread(url)
 
-                crop_img = img[y:y+h, x:x+h]
+                crop_img = img[y:y+s, x:x+s]
+
                 cv2.imwrite(url, crop_img)
 
-                user.profile_image.delete(save=False)
+                user.profile_image.delete()
 
-                user.profile_image.save('profile_image.png', File(open(url, 'rb+')))
+                user.profile_image.save('profile_image.png', File(open(url, 'rb')))
 
+                user.save()
 
                 with ThreadPoolExecutor() as executor:
                     executor.submit(self.remove_directory, f'temp/{user.pk}')
+                return redirect(reverse('account:profile', kwargs={'username': user.username}))
         except Exception as e:
             print(e)
 
         if form.is_valid():
             form.save()
-            return redirect(reverse('account:profile', kwargs={'username':user.username}))
-        else:
-            ValidationError("naahh aah...")
+            return redirect(reverse('account:profile', kwargs={'username': user.username}))
         return render(request, 'account/edit.html', {'form': form})
 
     def save_tmp_img(self, imgStr, user):
         try:
             if not exists('temp'):
                 mkdir('temp')
-            if not exists(f'{'temp'}/{user.pk}'):
-                mkdir(f'{'temp'}/{user.pk}')
+            if not exists(f'temp/{user.pk}'):
+                mkdir(f'temp/{user.pk}')
         
-            url = join(f'{'temp'}/{user.pk}', f'tmp_{user.pk}_img.png')
+            url = join(f'temp/{user.pk}', f'tmp_{user.pk}_img.png')
             storage = FileSystemStorage(location=url)
             img = b64decode(imgStr)
             with storage.open('', 'wb+') as dest:
@@ -180,3 +171,9 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
             shutil.rmtree(path)
         except Exception as e:
             print(f"Error removing directory {path}: {e}")
+
+class SearchView(View):
+    http_method_names = ['post', 'get']
+    def get(self, request, *args, **kwargs):
+        users = [args, kwargs]
+        return render(request, 'account/search.html', {'users': users})

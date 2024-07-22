@@ -7,17 +7,12 @@
 <script src="{% static 'cropperjs/dist/cropper.min.js' %}"></script>
 
 <div class="container h-full">
-	<style>
-		div.container {
-			min-height: 100dvh;
-		}
-	</style>
 	<div class="row mt-5 justify-content-center h-100 shadow p-2">
 		<div class="col-md-6 col-lg-4 col-12">
 			<div class="d-flex justify-content-center justify-content-md-start">
 				<div class="position-relative edit" style="width: 30dvh; height: 30dvh;">
-					<img class="rounded-circle w-100 h-100 img_edit" src="{{ request.user.profile_image.url }}"
-						alt="Profile Image" loading="lazy">
+					<img class="rounded-circle w-100 h-100 img_edit" src="{{ request.user.profile_image.url }}?{{ request.user.last_login|date:'U' }}"
+						alt="Profile Image" loading="lazy" >
 					<span
 						class="material-icons text-primary position-absolute top-50 start-50 translate-middle p-2 rounded-circle span_edit">edit</span>
 				</div>
@@ -45,9 +40,13 @@
 		</div>
 		<div class="col-md-6 col-lg-4 col-10">
 			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-center mt-3 mt-md-0 mt-lg-0">
-				<form method="post" spellcheck="false" enctype="multipart/form-data">
+				<form spellcheck="false" enctype="multipart/form-data" method="POST">
 					{% csrf_token %}
 					{{ form.profile_image }}
+					<input type="hidden" name="x" id="id_x">
+					<input type="hidden" name="y" id="id_y">
+					<input type="hidden" name="s" id="id_s">
+					<input type="hidden" name="image" id="id_image">
 					<div class="row">
 						<div class="col">
 							{{ form.first_name.label_tag }}
@@ -80,65 +79,18 @@
 								Back
 							</button>
 						</a>
-						<a href="{% url 'account:edit' request.user.username %}" class="float-end test">
-							<button role="button" type="submit" class="btn btn-success">Save Changes</button>
-						</a>
+						<button type="submit" class="btn btn-success float-end">Save Changes</button>
+					</div>
 				</form>
 			</div>
 		</div>
 	</div>
 </div>
-</div>
-
 
 <script>
-	let x = 0, y = 0, w = 0, h = 0, imgStr = '';
-
 	$("span.span_edit").on("click", function () {
 		$("input[type='file']").click();
 	});
-
-	$("a.test").on("click", function (e) {
-		sendToBackend();
-	});
-
-	function sendToBackend() {
-		alert(x+"\n"+y+"\n"+h);
-		alert(typeof(x)+"\n"+typeof(y)+"\n"+typeof(h))
-		var reqData = {
-			"csrfmiddlewaretoken": "{{ csrf_token }}",
-			"first_name": $("input[name='first_name']").val(),
-			"last_name": $("input[name='last_name']").val(),
-			"email": $("input[name='email']").val(),
-		};
-
-		if (x !== 0 || y !== 0 || h !== 0) {
-			const img = isImgSizeValid(imgStr);
-			if (img) {
-				reqData["image"] = img;
-				reqData["x"] = x;
-				reqData["y"] = y;
-				reqData["h"] = h;
-			}
-		}
-
-		console.log(reqData);
-		$.ajax({
-			type: "POST",
-			dataType: "json",
-			url: "{% url 'account:edit' request.user.username %}",
-			data: reqData,
-			timeout: 3000,
-			success: function (data) {
-				console.log("Success : ", data);
-				(data.status==="success")?location.reload(true):null;
-			},
-			complete: function (data) {
-				alert(data);
-				console.info("Complete : ", data);
-			}
-		});
-	}
 
 	function isImgSizeValid(img) {
 		var startIndex = img.indexOf("base64,") + 7;
@@ -149,31 +101,31 @@
 			return null;
 		}
 		return base64Str;
-
 	}
 
 	function readURL(input) {
 		if (input.files && input.files[0]) {
 			const reader = new FileReader();
-
 			reader.onload = function (e) {
 				let image = e.target.result;
-				const imageField = document.getElementsByTagName("img")[1];
+				const imageField = $("img")[1];
 				imageField.src = image;
 				const cropper = new Cropper(imageField, {
 					aspectRatio: 1,
 					viewMode: 1,
 					crop(event) {
-						$("span.span_edit").css("display","none");
+						$("span.span_edit").css("display", "none");
 						$("span.point-se").css({
 							"height": "5px",
 							"width": "5px",
 						});
-						imgStr = image;
-						x = parseFloat(event.detail.x);
-						y = parseFloat(event.detail.y);
-						h = parseFloat(event.detail.height);
-						console.log(x+"\n"+y+"\n"+h);
+						let x = parseFloat(event.detail.x);
+						let y = parseFloat(event.detail.y);
+						let s = parseFloat(event.detail.height);
+						$("#id_x").val(x);
+						$("#id_y").val(y);
+						$("#id_s").val(s);
+						$("#id_image").val(isImgSizeValid(image));
 					}
 				});
 			};

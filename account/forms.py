@@ -159,3 +159,12 @@ class UserUpdateForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'profile_image': forms.FileInput(attrs={'class':'form-control d-none', 'onchange':'readURL(this)'})
         }
+
+
+class SearchUserForm(forms.ModelForm):
+    class Meta:
+        model = UserAccount
+        fields = ['username']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Search User'}),
+        }

@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,7 +35,7 @@
 		}
 
 		div.h-full {
-			min-height: 100dvh;
+			min-height: 100dvh !important;
 		}
 
 		::-webkit-scrollbar {
@@ -54,14 +55,14 @@
 		}
 	</style>
 </head>
+
 <body>
 	{% include "snippets/header.html" %}
 	{% block content %}{% endblock %}
 	<script>
-		$(document).ready(function (e) {
-			$('button.close').on('click', function () {
-				$(this).parent('div.alert').alert('close');
-			});
+		$("button.close").on("click", function () {
+			console.log($(this));
+			$(this).closest("div.alert").alert("close");
 		});
 
 		var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -71,4 +72,5 @@
 	</script>
 	{% include "snippets/footer.html" %}
 </body>
+
 </html>

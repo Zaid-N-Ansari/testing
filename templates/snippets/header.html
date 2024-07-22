@@ -7,21 +7,24 @@
 <header class="p-3 shadow-lg mb-3 sticky-top z-3 bg-dark">
 	<div class="bs5-container-fluid">
 		<div class="row justify-content-between align-items-center">
-			<div
-				class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start justify-content-lg-between mb-md-0 mb-lg-0 mb-3">
+			<div class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start justify-content-lg-between mb-md-0 mb-lg-0 mb-3">
 				<a class="fs-4 me-md-5 me-lg-5 mb-md-0 mb-lg-0" href="/">ChatApp</a>
 
 				<form class="col-8 col-md-6 col-lg-4" role="search" method="post">
-					<input type="hidden" name="csrfmiddlewaretoken"
-						value="JoVTUkicChMTNBK92rIN4bvbQBAWztUEk12wWhH8WLQeEIg5Iovr2KFIjAHYRJ8o">
-					<input type="search" name="search_user" id="search_user" class="form-control"
-						placeholder="Search User">
+					{% csrf_token %}
+					<div class="input-group">
+						{{ form.username }}
+						<div class="input-group-text user-select-none pb-0 px-2">
+							<button role="button" type="submit" class="btn btn-sm p-0">
+								<span class="material-icons">search</span>
+							</button>
+						</div>
+					</div>
 				</form>
 			</div>
 
 
-			<div
-				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
+			<div class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
 				<a class="d-flex align-items-center justify-content-md-end justify-content-lg-end switch-theme w-50">
 					<span class="material-icons me-2">dark_mode</span>
 					<span class="text-body-secondary fs-6">Dark</span>
@@ -104,4 +107,5 @@
 			</div>
 			{% endif %}
 		</div>
+	</div>
 </header>
