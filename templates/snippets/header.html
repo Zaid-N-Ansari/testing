@@ -7,20 +7,18 @@
 <header class="p-3 shadow-lg mb-3 sticky-top z-3 bg-dark">
 	<div class="bs5-container-fluid">
 		<div class="row justify-content-between align-items-center">
-			<div class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start justify-content-lg-between mb-md-0 mb-lg-0 mb-3">
+			<div class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start mb-md-0 mb-lg-0 mb-3">
 				<a class="fs-4 me-md-5 me-lg-5 mb-md-0 mb-lg-0" href="/">ChatApp</a>
-				<form class="col-8 col-md-6 col-lg-4" autocomplete="off" role="search">
+				<form class="col-8 col-md-6 col-lg-4" autocomplete="off" role="search" method="post">
 					<div class="input-group">
-						<input class="form-control" type="search" name="search" id="user_search" />
+						<input class="form-control" type="search" name="search" id="user_search" placeholder="Search User" aria-valuenow="(this.value)" />
 						<div class="input-group-text user-select-none px-2">
 							<span class="material-icons">search</span>
 						</div>
 					</div>
 				</form>
 				<div id="search_result"></div>
-				<script>
-				{% include 'snippets/search_user.js' %}
-				</script>
+				<script>{% include 'snippets/search_user.js' %}</script>
 			</div>
 
 
@@ -48,7 +46,7 @@
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
 						data-bs-toggle="dropdown" aria-expanded="false">
 						<img src="{{request.user.profile_image.url}}" alt="User Profile Image" width="40" height="40"
-							class="rounded-circle" />
+							class="rounded-circle" loading="lazy" />
 					</a>
 					<ul class="dropdown-menu text-small">
 						<li>
@@ -58,8 +56,7 @@
 							<form class="dropdown-item text-danger" action="{% url 'account:logout' %}" method="post">
 								{% csrf_token %}
 								<button type="submit"
-									class="dropdown-item text-danger d-flex align-items-center justify-content-between p-0">Log
-									Out
+									class="dropdown-item text-danger d-flex align-items-center justify-content-between p-0">LogOut
 									<span class="material-icons">logout<span>
 								</button>
 							</form>

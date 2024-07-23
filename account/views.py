@@ -1,3 +1,4 @@
+import json
 from os.path import join, exists
 from os import mkdir
 from django.core import serializers
@@ -175,21 +176,23 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
             print(f"Error removing directory {path}: {e}")
 
 class SearchView(View):
-    http_method_names = ['get','post']
-    def get(self, request, *args, **kwargs):
-        return render(request, 'account/search.html')
+    http_method_names = ['post']
     def post(self, request, *args, **kwargs):
         user = request.POST.get('user')
-        if user != '':
-            try:
-                result = UserAccount.objects.filter(
-                    Q(username__icontains=user) |
-                    Q(email__icontains=user) |
-                    Q(first_name__icontains=user) |
-                    Q(last_name__icontains=user)
-                ).order_by('last_name').values_list('username')
-                return JsonResponse(list(result), safe=False) if result.count() > 0 else JsonResponse({'result':None})
-            except Exception as e:
-                return JsonResponse({'result':e})
-        else:
-            return JsonResponse({'result':None})
+        try:
+            fields = ['username', 'first_name', 'last_name', 'profile_image']
+            result = UserAccount.objects.filter(
+                Q(username__icontains=user) |
+                Q(email__icontains=user) |
+                Q(first_name__icontains=user) |
+                Q(last_name__icontains=user)
+            ).order_by('last_name').values_list('username', 'first_name', 'last_name', 'profile_image')
+            result = list(result)
+            result = [dict(zip(fields, values)) for values in result]
+            result = {'user'+str(cnt): d for cnt, d in enumerate(result)}
+            for key, value in result.items():
+                if 'profile_image' in value:
+                    value['profile_image'] = '/media/' + value['profile_image']
+            return JsonResponse(result if result.__len__() > 0 else {'result': None})
+        except Exception as e:
+            return JsonResponse({'result':e})
