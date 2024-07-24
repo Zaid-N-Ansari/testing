@@ -19,14 +19,18 @@
 						</div>
 					</div>
 				</form>
-				<div id="search_result" class="position-absolute"></div>
+				<div class="position-absolute d-none flex-column align-items-center justify-content-between" style="width: 30dvh; translate: 14dvh 4.5dvh;">
+					<div id="search_result"></div>
+					<div id="pagination_controls" class="pagination-controls d-flex align-items-center justify-content-center user-select-none"></div>
+				</div>
 				<script>{% include 'snippets/search_user.js' %}</script>
 			</div>
 
 
 			<div
 				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
-				<button class="btn d-flex align-items-center switch-theme w-50 text-primary justify-content-start justify-content-lg-end justify-content-md-end ps-0">
+				<button
+					class="btn d-flex align-items-center switch-theme w-50 text-primary justify-content-start justify-content-lg-end justify-content-md-end ps-0">
 					<span class="material-icons me-2">dark_mode</span>
 					<span class="text-body-secondary fs-6">Dark</span>
 				</button>

@@ -1,13 +1,11 @@
-import json
 from os.path import join, exists
 from os import mkdir
-from django.core import serializers
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.db.models import Q
 from django.http import Http404, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -37,8 +35,6 @@ from .forms import (
     UserUpdateForm,
 )
 
-User = get_user_model()
-
 class CustomLoginView(LoginView):
     form_class = LoginForm
     redirect_authenticated_user = True
@@ -50,7 +46,7 @@ class CustomLogoutView(LogoutView):
 
 
 class ProfileView(LoginRequiredMixin, DetailView):
-    model = User
+    model = UserAccount
     template_name = 'account/profile.html'
     context_object_name = 'user_profile'
     slug_field = 'username'
@@ -59,8 +55,8 @@ class ProfileView(LoginRequiredMixin, DetailView):
     def get_object(self):
         username = self.kwargs.get('username')
         try:
-            return User.objects.get(username=username)
-        except User.DoesNotExist:
+            return UserAccount.objects.get(username=username)
+        except UserAccount.DoesNotExist:
             raise Http404("User does not exist")
 
     def get_context_data(self, **kwargs):
@@ -175,24 +171,59 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         except Exception as e:
             print(f"Error removing directory {path}: {e}")
 
+
 class SearchView(View):
     http_method_names = ['post']
+
     def post(self, request, *args, **kwargs):
         user = request.POST.get('user')
+        page_number = request.POST.get('page', 1)  # Get the requested page number, default to 1
+        items_per_page = request.POST.get('items_per_page', 10)  # Number of items per page
+
         try:
+            # Fields to return
             fields = ['username', 'first_name', 'last_name', 'profile_image']
+
+            # Query the database
             result = UserAccount.objects.filter(
                 Q(username__icontains=user) |
                 Q(email__icontains=user) |
                 Q(first_name__icontains=user) |
                 Q(last_name__icontains=user)
             ).order_by('last_name').values_list('username', 'first_name', 'last_name', 'profile_image')
-            result = list(result)
+
+            # Create a Paginator object
+            paginator = Paginator(result, items_per_page)
+
+            try:
+                # Get the requested page
+                page_obj = paginator.page(page_number)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver the first page
+                page_obj = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range, deliver the last page of results
+                page_obj = paginator.page(paginator.num_pages)
+
+            # Prepare the paginated results
+            result = list(page_obj)
             result = [dict(zip(fields, values)) for values in result]
             result = {'user'+str(cnt): d for cnt, d in enumerate(result)}
+
+            # Update the profile_image paths
             for key, value in result.items():
                 if 'profile_image' in value:
                     value['profile_image'] = '/media/' + value['profile_image']
-            return JsonResponse(result if result.__len__() > 0 else {'result': None})
+
+            # Include pagination metadata
+            response_data = {
+                'result': result if result else None,
+                'pagination': {
+                    'current_page': page_obj.number,
+                    'total_pages': paginator.num_pages,
+                }
+            }
+
+            return JsonResponse(response_data)
         except Exception as e:
-            return JsonResponse({'result':e})
+            return JsonResponse({'error': str(e)})
