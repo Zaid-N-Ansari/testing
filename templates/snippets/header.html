@@ -4,43 +4,33 @@
 		display: none;
 	}
 </style>
-<header class="p-3 shadow-lg mb-3 sticky-top z-3 bg-dark">
+<header class="p-3 shadow-lg mb-3 sticky-top z-3">
 	<div class="bs5-container-fluid">
 		<div class="row justify-content-between align-items-center">
-			<div class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start mb-md-0 mb-lg-0 mb-3">
+			<div
+				class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start mb-md-0 mb-lg-0 mb-3">
 				<a class="fs-4 me-md-5 me-lg-5 mb-md-0 mb-lg-0" href="/">ChatApp</a>
 				<form class="col-8 col-md-6 col-lg-4" autocomplete="off" role="search" method="post">
 					<div class="input-group">
-						<input class="form-control" type="search" name="search" id="user_search" placeholder="Search User" aria-valuenow="(this.value)" />
+						<input class="form-control" type="search" name="search" id="user_search"
+							placeholder="Search User" aria-valuenow="(this.value)" />
 						<div class="input-group-text user-select-none px-2">
 							<span class="material-icons">search</span>
 						</div>
 					</div>
 				</form>
-				<div id="search_result"></div>
+				<div id="search_result" class="position-absolute"></div>
 				<script>{% include 'snippets/search_user.js' %}</script>
 			</div>
 
 
-			<div class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
-				<a class="d-flex align-items-center justify-content-md-end justify-content-lg-end switch-theme w-50">
+			<div
+				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
+				<button class="btn d-flex align-items-center switch-theme w-50 text-primary justify-content-start justify-content-lg-end justify-content-md-end ps-0">
 					<span class="material-icons me-2">dark_mode</span>
 					<span class="text-body-secondary fs-6">Dark</span>
-				</a>
-				<script>
-					document.querySelector(".switch-theme").addEventListener("click", (e) => {
-						let is_dark_theme = document.querySelector("html").getAttribute("data-bs-theme") === "dark";
-						document.getElementsByTagName('html')[0].setAttribute("data-bs-theme", is_dark_theme ? "light" : "dark");
-
-						document.querySelectorAll(".switch-theme > span")[1].innerText = is_dark_theme ? "Light" : "Dark";
-
-						document.querySelectorAll(".switch-theme > span")[0].innerText = is_dark_theme ? "light_mode" : "dark_mode";
-
-						document.querySelector("header").classList.remove(!is_dark_theme ? "bg-white" : "bg-dark");
-
-						document.querySelector("header").classList.add(is_dark_theme ? "bg-white" : "bg-dark");
-					});
-				</script>
+				</button>
+				<script>{% include 'snippets/change_theme.js' %}</script>
 				{% if request.user.is_authenticated %}
 				<div class="dropdown text-end">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
@@ -50,7 +40,8 @@
 					</a>
 					<ul class="dropdown-menu text-small">
 						<li>
-							<a class="dropdown-item" href="{% url 'account:profile' request.user.username %}">Profile</a>
+							<a class="dropdown-item"
+								href="{% url 'account:profile' request.user.username %}">Profile</a>
 						</li>
 						<li>
 							<form class="dropdown-item text-danger" action="{% url 'account:logout' %}" method="post">
