@@ -110,7 +110,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return render(request, 'account/edit.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
-        user = request.user
+        user:UserAccount = request.user
         data = request.POST
         form = UserUpdateForm(data, request.FILES, instance=user)
         try:
@@ -128,8 +128,6 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
                 crop_img = img[y:y+s, x:x+s]
 
                 cv2.imwrite(url, crop_img)
-
-                user.profile_image.delete()
 
                 user.profile_image.save('profile_image.png', File(open(url, 'rb')))
 

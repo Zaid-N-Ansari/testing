@@ -1,14 +1,14 @@
 $(document).ready(function () {
-	let currentPage = 1;  // Initialize current page
-	const itemsPerPage = 2;  // Number of items per page
+	let currentPage = 1;
+	const itemsPerPage = 2;
 
 	$("input#user_search").parent().children().children().on("click", function () {
 		if ($("input#user_search").val() !== "") {
 			$("div#search_result").parent()[0].classList.remove("d-none");
-			searchUsers(currentPage); // Call searchUsers with the current page
+			searchUsers(currentPage);
 		} else {
 			$("div#search_result").empty();
-			$("#pagination_controls").empty(); // Clear pagination controls
+			$("#pagination_controls").empty();
 			$("div#search_result").parent()[0].classList.add("d-flex");
 		}
 	});
@@ -24,34 +24,29 @@ $(document).ready(function () {
 		} else if (e.type === "keyup") {
 			if ($(this).val() === "") {
 				$("div#search_result").empty();
-				$("#pagination_controls").empty(); // Clear pagination controls
+				$("#pagination_controls").empty();
 			}
 		}
 	});
 
-	// Function to send AJAX request with pagination
 	function searchUsers(page) {
 		const userInput = $("input#user_search").val();
 		const req = {
 			csrfmiddlewaretoken: "{{ csrf_token }}",
 			user: userInput,
-			page: page, // Include the current page in the request
-			items_per_page: itemsPerPage // Include items per page in the request
+			page: page,
+			items_per_page: itemsPerPage
 		};
 
 		$.post("{% url 'account:search' %}", req, function (res) {
-			showSearchResult(res); // Update search results
-			updatePaginationUI(res.pagination); // Update pagination controls
+			showSearchResult(res);
+			updatePaginationUI(res.pagination);
 		});
 	}
 
-	// Function to display search results
 	function showSearchResult(res) {
 		$("div#search_result").empty().append(`<div class="list-group"></div>`);
-		$("div#search_result").css({
-			"width": "-webkit-fill-available",
-			"background-color": "var(--bs-body-bg)",
-		});
+		$("div#search_result").css("width", "-webkit-fill-available");
 		$("div#search_result > div.list-group").empty();
 		if (res.result !== null) {
 			Object.entries(res.result).forEach(([key, user]) => {
@@ -69,35 +64,30 @@ $(document).ready(function () {
 		}
 	}
 
-	// Function to update pagination UI
+	function createButton(page, isDisabled, icon, tooltip) {
+		return `<button ${isDisabled ? 'disabled' : ''} class="btn btn-sm d-inline-flex border-0" onclick="goToPage(${page})" type="button"><span class="material-icons">${icon}</span></button>`;
+	}
+
 	function updatePaginationUI(pagination) {
 		if (!pagination) {
-			$("#pagination_controls").empty(); // Clear pagination if no data
+			$("#pagination_controls").empty();
 			return;
 		}
-
 		const { current_page, total_pages } = pagination;
 
-		console.log(total_pages);
-
-		// Create pagination buttons
-
-		let paginationHTML = `<button ${current_page === 1 ? 'disabled' : ''} class="btn btn-sm d-inline-flex ps-0 border-0" onclick="goToPage(1)"><span class="material-icons">first_page</span></button>`;
-
-		paginationHTML += `<button ${current_page === 1 ? 'disabled' : ''} class="btn btn-sm d-inline-flex border-0" onclick="goToPage(${current_page - 1})"><span class="material-icons">west</span></button>`;
-
-		paginationHTML += ` <span>Page ${current_page} of ${total_pages}</span> `;
-
-		paginationHTML += `<button ${current_page === total_pages ? 'disabled' : ''} class="btn btn-sm d-inline-flex pe-0 border-0" onclick="goToPage(${current_page + 1})"><span class="material-icons">east</span></button>`;
-
-		paginationHTML += `<button ${current_page === total_pages ? 'disabled' : ''} class="btn btn-sm d-inline-flex border-0" onclick="goToPage(${total_pages})"><span class="material-icons">last_page</span></button>`;
+		const paginationHTML =
+			`${createButton(1, current_page === 1, 'first_page', 'First Page')}
+				${createButton(current_page - 1, current_page === 1, 'west', 'Previous Page')}
+				<span class="mx-2">Page ${current_page} of ${total_pages}</span>
+				${createButton(current_page + 1, current_page === total_pages, 'east', 'Next Page')}
+				${createButton(total_pages, current_page === total_pages, 'last_page', 'Last Page')}`;
 
 		$("#pagination_controls").html(paginationHTML);
 	}
 
 	// Function to navigate pages
 	window.goToPage = function (page) {
-		currentPage = page; // Update the current page
-		searchUsers(currentPage); // Fetch new page results
+		currentPage = page;
+		searchUsers(page);
 	};
 });
