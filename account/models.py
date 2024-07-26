@@ -1,11 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.crypto import get_random_string
-from ChatApp import settings
 
 
 class UserAccountManager(BaseUserManager):
-    def create_user(self, email, username, password=None):
+    def create_user(self, email, username, password=None, **extra_fields):
         if not username:
             raise ValueError('User must have a Username')
         if not email:
@@ -14,24 +13,24 @@ class UserAccountManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             username=username,
+            **extra_fields
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, username, password):
-        user = self.create_user(
-            email=self.normalize_email(email),
+    def create_superuser(self, email, username, password, **extra_fields):
+        extra_fields.setdefault('is_admin', True)
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        return self.create_user(
+            email=email,
             username=username,
             password=password,
+            **extra_fields
         )
-
-        user.is_admin = True
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
 
 
 def get_profile_image_filepath(instance, filename):
@@ -95,7 +94,7 @@ class UserAccount(AbstractBaseUser):
     )
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['first_name','last_name','email',]
 
     objects = UserAccountManager()
 

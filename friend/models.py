@@ -5,7 +5,8 @@ class Friend(models.Model):
 	user = models.OneToOneField(
 			settings.AUTH_USER_MODEL,
 			on_delete=models.CASCADE,
-			related_name='user'
+			related_name='user',
+			primary_key=True
 		)
 
 	friends = models.ManyToManyField(
@@ -15,4 +16,4 @@ class Friend(models.Model):
 	)
 
 	def __str__(self):
-		return f'{self.user.username}'
+		return f'{self.user}'
