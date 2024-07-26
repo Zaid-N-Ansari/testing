@@ -76,11 +76,11 @@ $(document).ready(function () {
 		const { current_page, total_pages } = pagination;
 
 		const paginationHTML =
-			`${createButton(1, current_page === 1, 'first_page', 'First Page')}
-				${createButton(current_page - 1, current_page === 1, 'west', 'Previous Page')}
-				<span class="mx-2">Page ${current_page} of ${total_pages}</span>
-				${createButton(current_page + 1, current_page === total_pages, 'east', 'Next Page')}
-				${createButton(total_pages, current_page === total_pages, 'last_page', 'Last Page')}`;
+			`${createButton(1, current_page === 1, 'first_page')}
+			${createButton(current_page - 1, current_page === 1, 'west')}
+			<span class="mx-2">Page ${current_page} of ${total_pages}</span>
+			${createButton(current_page + 1, current_page === total_pages, 'east')}
+			${createButton(total_pages, current_page === total_pages, 'last_page')}`;
 
 		$("#pagination_controls").html(paginationHTML);
 	}

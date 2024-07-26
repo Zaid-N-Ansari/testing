@@ -8,21 +8,27 @@
 		<div class="col-10 col-md-6 col-lg-4 mb-2 mt-2 flex-fill">
 			<div class="card p-2 flex-column">
 				<div class="d-flex flex-row w-100 justify-content-between">
-					<a target="_blank" href="{% url 'account:profile' friend.username %}" class="d-flex flex-row w-100 justify-content-between text-white">
+					<a target="_blank" href="{% url 'account:profile' friend.username %}"
+						class="d-flex flex-row w-100 justify-content-between text-white">
 						<p>{{friend.username}}</p>
-						<img class="rounded-circle" src="{{friend.profile_image.url}}" style="height: 10dvh; width: 10dvh;">
+						<img class="rounded-circle" src="{{friend.profile_image.url}}"
+							style="height: 10dvh; width: 10dvh;">
 					</a>
 				</div>
 				<div class="d-flex flex-row justify-content-between" style="width: 15dvh;">
-					<button id="unfriend-btn" class="bg-transparent border-0 text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Unfriend {{friend.username}}" type="button">
+					<button id="unfriend-btn" class="bg-transparent border-0 text-danger" data-bs-toggle="tooltip"
+						data-bs-placement="top" title="Unfriend {{friend.username}}" type="button">
 						<span class="material-icons">person_remove</span>
 					</button>
-					<button id="chat-btn" class="bg-transparent border-0 text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Message {{friend.username}}" type="button">
+					<button id="chat-btn" class="bg-transparent border-0 text-primary" data-bs-toggle="tooltip"
+						data-bs-placement="top" title="Message {{friend.username}}" type="button">
 						<span class="material-icons">chat</span>
 					</button>
 				</div>
 			</div>
 		</div>
+		{% empty %}
+			<h3 class="text-center">No Friends Found</h3>
 		{% endfor %}
 		<script>{% include 'friend/snippets/unfriend.js' %}</script>
 	</div>
