@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.views import View
 from django.views.generic.detail import DetailView
 from account.models import UserAccount
 from friend.models import Friend
@@ -16,3 +17,6 @@ class FriendsView(DetailView):
         friend_instance = get_object_or_404(Friend, user=self.object)
         context['friends'] = friend_instance.friends.all()
         return context
+
+class Unfriend(View):
+    pass
