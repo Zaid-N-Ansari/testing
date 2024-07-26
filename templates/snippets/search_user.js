@@ -4,16 +4,16 @@ $(document).ready(function () {
 
 	$("input#user_search").parent().children().children().on("click", function () {
 		if ($("input#user_search").val() !== "") {
-			$("div#search_result").parent()[0].classList.remove("d-none");
+			$("div#search_result").parent().removeClass("d-none");
 			searchUsers(currentPage);
 		} else {
 			$("div#search_result").empty();
 			$("#pagination_controls").empty();
-			$("div#search_result").parent()[0].classList.add("d-flex");
+			$("div#search_result").parent()[0].addClass("d-flex");
 		}
 	});
 
-	$("input#user_search").on("keydown click keyup", function (e) {
+	$("input#user_search").on("keydown click keyup change", function (e) {
 		if (e.type === "keydown") {
 			if (e.code === "Enter" || e.code === "NumpadEnter") {
 				e.preventDefault();
@@ -21,7 +21,7 @@ $(document).ready(function () {
 			}
 		} else if (e.type === "click") {
 			$(this).select();
-		} else if (e.type === "keyup") {
+		} else if (e.type === "keyup" || e.type === "change") {
 			if ($(this).val() === "") {
 				$("div#search_result").empty();
 				$("#pagination_controls").empty();

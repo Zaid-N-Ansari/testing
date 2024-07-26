@@ -18,17 +18,12 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-md-6 col-lg-4 col-10 text-center">
-			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-center user-select-none">
+		<div class="col-md-6 col-lg-4 col-10 d-flex text-center">
+			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-evenly user-select-none">
 				<div class="d-flex align-items-center justify-content-center mb-3">
 					<p class="lead mt-2 mt-md-0 mb-0 mt-lg-0 w-100">
 						{{ user.username }}
 					</p>
-					{% if user.id == request.user.id %}
-					<a href="{% url 'account:edit' request.user.username %}" class="float-start">
-						<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Profile">settings</span>
-					</a>
-					{% endif %}
 				</div>
 				<p>Unique User Id:
 					<span class="text-info">{{ user.id }}</span>
@@ -48,7 +43,8 @@
 				<div class="form-group mt-3">
 					<a href="{% url 'friend:all' %}" class="float-start">
 						<button type="button" class="btn btn-primary position-relative">My Friends
-							<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-primary">{{friends_count}}</span>
+							<span
+								class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-primary">{{friends_count}}</span>
 						</button>
 					</a>
 					<a href="{% url 'account:password_change' %}" class="float-end">
@@ -58,14 +54,22 @@
 				{% else %}
 				<div class="form-group mt-3 d-flex justify-content-around">
 					<button type="button" class="btn">
-						<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="left" title="UnFriend {{user.username}}">person_remove</span>
+						<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="left"
+							title="UnFriend {{user.username}}">person_remove</span>
 					</button>
 					<button type="button" class="btn">
-						<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="right" title="Chat">chat</span>
+						<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="right"
+							title="Chat">chat</span>
 					</button>
 				</div>
 				{% endif %}
 			</div>
+			{% if user.id == request.user.id %}
+			<a href="{% url 'account:edit' request.user.username %}" class="mt-2">
+				<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="top"
+					title="Edit Profile">settings</span>
+			{% endif %}
+			</a>
 		</div>
 	</div>
 </div>
