@@ -48,9 +48,6 @@ class CustomLogoutView(LogoutView):
 class ProfileView(LoginRequiredMixin, DetailView):
     model = UserAccount
     template_name = 'account/profile.html'
-    context_object_name = 'user_profile'
-    slug_field = 'username'
-    slug_url_kwarg = 'username'
 
     def get_object(self):
         username = self.kwargs.get('username')
@@ -61,10 +58,12 @@ class ProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         user = self.get_object()
+        logged_in_user = self.request.user
         context = super().get_context_data(**kwargs)
-        user_acc = Friend.objects.get_or_create(user=user)
-        context['friends_count'] = user_acc[0].friends.count()
+        friend:Friend = Friend.objects.get_or_create(user=user)[0]
         context['user'] = user
+        context['is_friend'] = logged_in_user in friend.friends.all()
+        context['friends_count'] = friend.friends.count() if logged_in_user == user else ''
         return context
 
 
@@ -209,9 +208,8 @@ class SearchView(View):
             result = {'user'+str(cnt): d for cnt, d in enumerate(result)}
 
             # Update the profile_image paths
-            for key, value in result.items():
-                if 'profile_image' in value:
-                    value['profile_image'] = '/media/' + value['profile_image']
+            for _, __ in result.items():
+                __['profile_image'] = '/media/' + __['profile_image']
 
             # Include pagination metadata
             response_data = {

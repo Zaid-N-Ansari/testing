@@ -32,10 +32,10 @@ $(document).ready(function () {
 	function searchUsers(page) {
 		const userInput = $("input#user_search").val();
 		const req = {
-			csrfmiddlewaretoken: "{{ csrf_token }}",
-			user: userInput,
-			page: page,
-			items_per_page: itemsPerPage
+			"csrfmiddlewaretoken": "{{ csrf_token }}",
+			"user": userInput,
+			"page": page,
+			"items_per_page": itemsPerPage
 		};
 
 		$.post("{% url 'account:search' %}", req, function (res) {
