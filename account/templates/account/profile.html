@@ -1,5 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Profile{% endblock title %}
+
+{% block title %}
+{% if user == request.user %}
+Your Profile
+{% else %}
+Profile
+{% endif %}
+{% endblock title %}
+
 {% load static %}
 {% block content %}
 
@@ -50,7 +58,7 @@
 					<a href="{% url 'friend:all' %}" class="float-start">
 						<button type="button" class="btn btn-primary position-relative">My Friends
 							<span
-								class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-white text-primary">{{friends_count}}</span>
+								class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-primary" style="background-color: var(--bs-body-bg);">{{friends_count}}</span>
 						</button>
 					</a>
 					<a href="{% url 'account:password_change' %}" class="float-end">
@@ -58,24 +66,24 @@
 					</a>
 				</div>
 				{% else %}
-				<div class="form-group mt-3
-					{% if is_friend %}
-					d-flex justify-content-around">
+				<div {% if is_friend %} 
+					class="form-group mt-3 d-flex justify-content-around">
 					<button id="unfriend-btn" class="btn text-danger" data-bs-toggle="tooltip" data-bs-placement="bottom"
 						title="Unfriend {{user.username}}">
 						<span class="material-icons">person_remove</span>
 					</button>
+					<script>{% include 'friend/snippets/unfriend.js' %}</script>
 					<button class="btn text-info" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Chat">
 						<span class="material-icons">chat</span>
 					</button>
 					{% else %}
-					text-start">
+					class="text-start">
 					<button id="addfriend-btn" class="btn text-success" data-bs-toggle="tooltip" data-bs-placement="right"
 						title="Friend {{user.username}}">
 						<span class="material-icons">person_add</span>
 					</button>
+					<script>{% include 'friend/snippets/addfriend.js' %}</script>
 					{% endif %}
-					<script>{% include 'account/snippets/friend-actions.js' %}</script>
 				</div>
 				{% endif %}
 			</div>

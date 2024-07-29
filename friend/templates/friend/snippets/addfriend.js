@@ -1,11 +1,11 @@
 $(document).ready(function() {
-	$("button#unfriend-btn").on("click", function() {
-		const friend = $(this).attr("data-bs-original-title").replace("Unfriend", "").trim();
+	$("button#addfriend-btn").on("click", function() {
+		const friend = $(this).attr("data-bs-original-title").replace("Friend", "").trim();
 		const req = {
 			"csrfmiddlewaretoken": "{{ csrf_token }}",
 			"friend": friend
 		}
-        $.post("{% url 'friend:unfriend' %}", req, function({result, message}) {
+        $.post("{% url 'friend:addfriend' %}", req, function({result, message}) {
             if (result === "success") {
                 window.location.reload(true);
             } else {

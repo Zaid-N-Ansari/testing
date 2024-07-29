@@ -1,50 +1,55 @@
-function toggleTheme(event) {
-	const currentTheme = document.querySelector("html").getAttribute("data-bs-theme");
-	const newTheme = currentTheme === "dark" ? "light" : "dark";
-	document.querySelector("html").setAttribute("data-bs-theme", newTheme);
-	localStorage.setItem("theme", newTheme);
-	checkAndChangeTheme(newTheme);
-}
-
-function checkAndChangeTheme(theme) {
-	if (theme === "dark") {
-		document.querySelector("header").classList.remove("bg-white");
-		document.querySelector("header").classList.add("bg-dark");
-		document.querySelector("button.switch-theme").children[0].innerText = "dark_mode";
-		document.querySelector("button.switch-theme").children[1].innerText = "Dark";
+$(document).ready(function () {
+	function checkAndChangeTheme(theme) {
+		if (theme === "dark") {
+			$("header").addClass("bg-dark");
+			$("header").removeClass("bg-white");
+			$("span.badge").addClass("bg-dark");
+			$("span.badge").removeClass("bg-white");
+			$("button.switch-theme").children(0).eq(0).text("dark_mode");
+			$("button.switch-theme").children(0).eq(1).text("Dark");
+		}
+		else {
+			$("header").addClass("bg-white");
+			$("header").removeClass("bg-dark");
+			$("span.badge").addClass("bg-white");
+			$("span.badge").removeClass("bg-dark");
+			$("button.switch-theme").children(0).eq(0).text("light_mode");
+			$("button.switch-theme").children(0).eq(1).text("Light");
+		}
 	}
-	else {
-		document.querySelector("header").classList.remove("bg-dark");
-		document.querySelector("header").classList.add("bg-white");
-		document.querySelector("button.switch-theme").children[0].innerText = "light_mode";
-		document.querySelector("button.switch-theme").children[1].innerText = "Light";
-	}
-}
 
-function setInitialTheme() {
-	const storedTheme = localStorage.getItem("theme");
-	if (storedTheme) {
-		document.querySelector("html").setAttribute("data-bs-theme", storedTheme);
-		checkAndChangeTheme(storedTheme);
+	function setInitialTheme() {
+		const storedTheme = localStorage.getItem("theme");
+		if (storedTheme) {
+			$("html").attr("data-bs-theme", storedTheme);
+			checkAndChangeTheme(storedTheme);
+		}
+		else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+			$("html").attr("data-bs-theme", "dark");
+		} else {
+			$("html").attr("data-bs-theme", "light");
+		}
 	}
-	else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-		document.querySelector("html").setAttribute("data-bs-theme", "dark");
-	} else {
-		document.querySelector("html").setAttribute("data-bs-theme", "light");
+
+	function listenForThemeChanges() {
+		const mediaQueryList = window.matchMedia("(prefers-color-scheme: dark)");
+
+		mediaQueryList.addEventListener("change", (event) => {
+			const newColorScheme = event.matches ? "dark" : "light";
+			$("html").attr("data-bs-theme", newColorScheme);
+			localStorage.setItem("theme", newColorScheme);
+			checkAndChangeTheme(newColorScheme);
+		});
 	}
-}
 
-function listenForThemeChanges() {
-	const mediaQueryList = window.matchMedia("(prefers-color-scheme: dark)");
-
-	mediaQueryList.addEventListener("change", (event) => {
-		const newColorScheme = event.matches ? "dark" : "light";
-		document.querySelector("html").setAttribute("data-bs-theme", newColorScheme);
-		localStorage.setItem("theme", newColorScheme);
+	$("button.switch-theme").on("click", function (event) {
+		const currentTheme = $("html")[0].getAttribute("data-bs-theme");
+		const newTheme = currentTheme === "dark" ? "light" : "dark";
+		checkAndChangeTheme(newTheme);
+		$("html").attr("data-bs-theme", newTheme);
+		localStorage.setItem("theme", newTheme);
 	});
-}
 
-setInitialTheme();
-listenForThemeChanges();
-
-document.querySelector("button.switch-theme").addEventListener("click", toggleTheme);
+	setInitialTheme();
+	listenForThemeChanges();
+});

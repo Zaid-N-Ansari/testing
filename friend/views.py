@@ -22,15 +22,15 @@ class FriendsView(DetailView):
 class Unfriend(View):
     http_method_names = ['post']
     def post(self, request, *args, **kwargs):
-        user = kwargs['username']
+        user = request.POST.get('friend')
         try:
             from_user = UserAccount.objects.get(username=request.user)
             to_user = UserAccount.objects.get(username=user)
-            
+
             friend_instance = Friend.objects.get_or_create(user=from_user)[0]
             friend_instance.friends.remove(to_user)
             friend_instance.save()
-            
+
             friend_instance = Friend.objects.get_or_create(user=to_user)[0]
             friend_instance.friends.remove(from_user)
             friend_instance.save()
@@ -46,15 +46,15 @@ class Unfriend(View):
 class AddFriend(View):
     http_method_names = ['post']
     def post(self, request, *args, **kwargs):
-        user = kwargs['username']
+        user = request.POST.get('friend')
         try:
             from_user = UserAccount.objects.get(username=request.user)
             to_user = UserAccount.objects.get(username=user)
-            
+
             friend_instance = Friend.objects.get_or_create(user=from_user)[0]
             friend_instance.friends.add(to_user)
             friend_instance.save()
-            
+
             friend_instance = Friend.objects.get_or_create(user=to_user)[0]
             friend_instance.friends.add(from_user)
             friend_instance.save()

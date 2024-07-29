@@ -5,11 +5,11 @@
 <div class="container h-full">
 	<div class="row justify-content-center">
 		{% for friend in friends %}
-		<div class="col-10 col-md-6 col-lg-4 mb-2 mt-2 flex-fill">
+		<div class="col-10 col-md-6 col-lg-4 mb-2 mt-2">
 			<div class="card p-2 flex-column">
 				<div class="d-flex flex-row w-100 justify-content-between">
 					<a target="_blank" href="{% url 'account:profile' friend.username %}"
-						class="d-flex flex-row w-100 justify-content-between text-white">
+						class="d-flex flex-row w-100 justify-content-between">
 						<p>{{friend.username}}</p>
 						<img class="rounded-circle" src="{{friend.profile_image.url}}"
 							style="height: 10dvh; width: 10dvh;">
@@ -30,8 +30,8 @@
 		{% empty %}
 			<h3 class="text-center">No Friends Found</h3>
 		{% endfor %}
-		<script>{% include 'friend/snippets/unfriend.js' %}</script>
 	</div>
+	<script>{% include 'friend/snippets/unfriend.js' %}</script>
 </div>
 
 {% endblock content %}

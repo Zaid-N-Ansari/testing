@@ -4,3 +4,4 @@
 /**/migrations/
 gitacp.bat
 /temp
+db.sqlite3
