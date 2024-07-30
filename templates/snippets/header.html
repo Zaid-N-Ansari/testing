@@ -31,11 +31,28 @@
 				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
 				<button
 					class="btn d-flex align-items-center switch-theme w-50 text-primary justify-content-start justify-content-lg-end justify-content-md-end ps-0">
-					<span class="material-icons me-2">dark_mode</span>
-					<span class="text-body-secondary fs-6">Dark</span>
+					<span class="material-icons me-2"></span>
+					<span class="text-body-secondary fs-6"></span>
 				</button>
 				<script>{% include 'snippets/change_theme.js' %}</script>
 				{% if request.user.is_authenticated %}
+				<div class="dropdown text-end">
+					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+						data-bs-toggle="dropdown" aria-expanded="false">
+						<span class="material-icons">notifications</span>
+					</a>
+					<ul class="dropdown-menu text-small">
+						{% for info in infos %}
+						<li>
+							<a target="_blank" class="dropdown-item" href="{% url 'account:profile' info.to_user %}">
+								<img class="rounded-circle" src="{{ info.to_user.profile_image.url }}" style="width: 5vw;">
+								<span>{{ info }}</span>
+								<span>{{ info.created_at|timesince }}</span>
+							</a>
+						</li>
+						{% endfor %}
+					</ul>
+				</div>
 				<div class="dropdown text-end">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
 						data-bs-toggle="dropdown" aria-expanded="false">

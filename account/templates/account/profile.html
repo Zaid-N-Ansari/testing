@@ -78,11 +78,19 @@ Profile
 					</button>
 					{% else %}
 					class="text-start">
-					<button id="addfriend-btn" class="btn text-success" data-bs-toggle="tooltip" data-bs-placement="right"
-						title="Friend {{user.username}}">
-						<span class="material-icons">person_add</span>
-					</button>
-					<script>{% include 'friend/snippets/addfriend.js' %}</script>
+						{% if request_pending %}
+						<button id="cancel-request-btn" class="btn" data-bs-toggle="tooltip" data-bs-placement="bottom"
+							title="Pending Friend Request">
+							<span class="material-icons">schedule</span>
+						</button>
+						<script>{% include 'friend/snippets/cancel.js' %}</script>
+						{% else %}
+						<button id="addfriend-btn" class="btn text-success" data-bs-toggle="tooltip" data-bs-placement="right"
+							title="Friend {{user.username}}">
+							<span class="material-icons">person_add</span>
+						</button>
+						<script>{% include 'friend/snippets/addfriend.js' %}</script>
+						{% endif %}
 					{% endif %}
 				</div>
 				{% endif %}

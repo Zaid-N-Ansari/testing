@@ -25,7 +25,7 @@ from django.contrib.auth.views import (
     PasswordChangeDoneView,
 )
 from account.models import UserAccount
-from friend.models import Friend
+from friend.models import Friend, FriendRequest
 from .forms import (
 	LoginForm,
 	CustomUserCreationForm,
@@ -63,6 +63,7 @@ class ProfileView(LoginRequiredMixin, DetailView):
         friend:Friend = Friend.objects.get_or_create(user=user)[0]
         context['user'] = user
         context['is_friend'] = logged_in_user in friend.friends.all()
+        context['request_pending'] = FriendRequest.objects.filter(from_user=logged_in_user, to_user=user).exists()
         context['friends_count'] = friend.friends.count() if logged_in_user == user else ''
         return context
 

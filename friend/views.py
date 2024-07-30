@@ -1,9 +1,9 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic.detail import DetailView
 from account.models import UserAccount
-from friend.models import Friend
+from .models import Friend, FriendRequest
 
 class FriendsView(DetailView):
     model = UserAccount
@@ -19,30 +19,6 @@ class FriendsView(DetailView):
         context['friends'] = friend_instance.friends.all()
         return context
 
-class Unfriend(View):
-    http_method_names = ['post']
-    def post(self, request, *args, **kwargs):
-        user = request.POST.get('friend')
-        try:
-            from_user = UserAccount.objects.get(username=request.user)
-            to_user = UserAccount.objects.get(username=user)
-
-            friend_instance = Friend.objects.get_or_create(user=from_user)[0]
-            friend_instance.friends.remove(to_user)
-            friend_instance.save()
-
-            friend_instance = Friend.objects.get_or_create(user=to_user)[0]
-            friend_instance.friends.remove(from_user)
-            friend_instance.save()
-
-        except Exception as e:
-            return JsonResponse({'result':e})
-
-        else:
-            return JsonResponse({
-                'result': 'success'
-            })
-
 class AddFriend(View):
     http_method_names = ['post']
     def post(self, request, *args, **kwargs):
@@ -52,17 +28,91 @@ class AddFriend(View):
             to_user = UserAccount.objects.get(username=user)
 
             friend_instance = Friend.objects.get_or_create(user=from_user)[0]
-            friend_instance.friends.add(to_user)
+            friend_instance.add_friend(to_user)
             friend_instance.save()
 
             friend_instance = Friend.objects.get_or_create(user=to_user)[0]
-            friend_instance.friends.add(from_user)
+            friend_instance.add_friend(from_user)
             friend_instance.save()
 
         except Exception as e:
-            return JsonResponse({'result':e})
+            return JsonResponse({'result': 'An Unexpected Error has Occured'})
 
         else:
-            return JsonResponse({
-                'result': 'success'
-            })
+            return JsonResponse({ 'result': 'success'})
+
+class Unfriend(View):
+    http_method_names = ['post']
+    def post(self, request, *args, **kwargs):
+        user = request.POST.get('friend')
+        try:
+            from_user = UserAccount.objects.get(username=request.user)
+            to_user = UserAccount.objects.get(username=user)
+
+            friend_instance = Friend.objects.get_or_create(user=from_user)[0]
+            friend_instance.remove_friend(to_user)
+            friend_instance.save()
+
+            friend_instance = Friend.objects.get_or_create(user=to_user)[0]
+            friend_instance.remove_friend(from_user)
+            friend_instance.save()
+
+        except Exception as e:
+            return JsonResponse({'result': 'An Unexpected Error has Occured'})
+
+        else:
+            return JsonResponse({'result': 'success'})
+
+class CancelFriendRequest(View):
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        user = request.POST.get('friend')
+        try:
+            from_user = UserAccount.objects.get(username=request.user)
+            to_user = UserAccount.objects.get(username=user)
+
+            FriendRequest.objects.get(from_user=from_user, to_user=to_user).delete()
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({'result': 'An Unexpected Error has Occured'})
+
+        else:
+            return JsonResponse({'result': 'success'})
+
+
+class AcceptFriendRequest(View):
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        user = request.POST.get('friend')
+        try:
+            from_user = UserAccount.objects.get(username=request.user)
+            to_user = UserAccount.objects.get(username=user)
+
+            FriendRequest.objects.create(from_user=from_user, to_user=to_user).save()
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({'result': 'An Unexpected Error has Occured'})
+
+        else:
+            return JsonResponse({'result': 'success'})
+
+class RejectFriendRequest(View):
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        user = request.POST.get('friend')
+        try:
+            from_user = UserAccount.objects.get(username=request.user)
+            to_user = UserAccount.objects.get(username=user)
+            
+            FriendRequest.objects.get(from_user=from_user, to_user=to_user).reject()()
+
+        except Exception as e:
+            return JsonResponse({'result': 'An Unexpected Error has Occured'})
+
+        else:
+            return JsonResponse({ 'result': 'success'})

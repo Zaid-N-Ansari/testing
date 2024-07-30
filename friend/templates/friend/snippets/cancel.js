@@ -1,11 +1,11 @@
 $(document).ready(function() {
-	$("button#addfriend-btn").on("click", function() {
-		const friend = $(this).attr("data-bs-original-title").replace("Friend", "").trim();
+	$("button#cancel-request-btn").on("click", function() {
+		const friend = $(this).parent().parent().children().eq(0).text().trim();
 		const req = {
 			"csrfmiddlewaretoken": "{{ csrf_token }}",
 			"friend": friend
 		}
-        $.post("{% url 'friend:accept' %}", req, function({result, message}) {
+        $.post("{% url 'friend:cancel' %}", req, function({result, message}) {
             if (result === "success") {
                 window.location.reload(true);
             } else {
