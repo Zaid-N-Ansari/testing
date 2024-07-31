@@ -1,9 +1,11 @@
-from django.http import JsonResponse
+from datetime import time
+from django.http import  JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic.detail import DetailView
 from account.models import UserAccount
 from .models import Friend, FriendRequest
+from asgiref.sync import sync_to_async
 
 class FriendsView(DetailView):
     model = UserAccount
@@ -81,7 +83,6 @@ class CancelFriendRequest(View):
         else:
             return JsonResponse({'result': 'success'})
 
-
 class AcceptFriendRequest(View):
     http_method_names = ['post']
 
@@ -109,10 +110,35 @@ class RejectFriendRequest(View):
             from_user = UserAccount.objects.get(username=request.user)
             to_user = UserAccount.objects.get(username=user)
             
-            FriendRequest.objects.get(from_user=from_user, to_user=to_user).reject()()
+            FriendRequest.objects.get(from_user=from_user, to_user=to_user).reject()
 
         except Exception as e:
             return JsonResponse({'result': 'An Unexpected Error has Occured'})
 
         else:
             return JsonResponse({ 'result': 'success'})
+
+class Notifications(View):
+    async def get(self, request, *args, **kwargs):
+        user = request.user
+        user = await UserAccount.objects.aget(username=user)
+        res:list = []
+        from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
+        from django.utils import timezone as tz
+        async for fr in FriendRequest.objects.filter(from_user=user).aiterator():
+            to_user = await sync_to_async(lambda: fr.to_user)()
+            created_at = await sync_to_async(lambda: fr.created_at)()
+            created_at_local = tz.localtime(created_at)
+            natday = naturalday(created_at_local)
+            formatted_time = ''
+            if natday == 'today':
+                formatted_time = f', {naturaltime(created_at_local)}'
+            else:
+                formatted_time = f' at {created_at_local.strftime('%I:%M %p')}'
+
+            res.append({
+                'to_user': f'{to_user}',
+                'created_at': f'{natday}{formatted_time}'
+            })
+
+        return JsonResponse({'result': res})

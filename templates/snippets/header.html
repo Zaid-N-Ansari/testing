@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <style>
 	.dropdown-toggle::after {
 		display: none;
@@ -19,9 +20,12 @@
 						</div>
 					</div>
 				</form>
-				<div class="position-absolute d-none flex-column align-items-center justify-content-between z-3" style="width: 30dvh; translate: 14dvh 4.5dvh;">
+				<div class="position-absolute d-none flex-column align-items-center justify-content-between z-3"
+					style="width: 30dvh; translate: 14dvh 4.5dvh;">
 					<div id="search_result"></div>
-					<div id="pagination_controls" class="pagination-controls d-flex align-items-center justify-content-between user-select-none"></div>
+					<div id="pagination_controls"
+						class="pagination-controls d-flex align-items-center justify-content-between user-select-none">
+					</div>
 				</div>
 				<script>{% include 'snippets/search_user.js' %}</script>
 			</div>
@@ -36,22 +40,24 @@
 				</button>
 				<script>{% include 'snippets/change_theme.js' %}</script>
 				{% if request.user.is_authenticated %}
-				<div class="dropdown text-end">
-					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
-						data-bs-toggle="dropdown" aria-expanded="false">
+				<style>
+				</style>
+				<div id="notifications" class="dropdown text-end">
+					<button type="button" class="btn position-relative align-items-center dropdown-toggle p-0" data-bs-toggle="dropdown" aria-expanded="false">
 						<span class="material-icons">notifications</span>
-					</a>
-					<ul class="dropdown-menu text-small">
-						{% for info in infos %}
-						<li>
-							<a target="_blank" class="dropdown-item" href="{% url 'account:profile' info.to_user %}">
-								<img class="rounded-circle" src="{{ info.to_user.profile_image.url }}" style="width: 5vw;">
-								<span>{{ info }}</span>
-								<span>{{ info.created_at|timesince }}</span>
-							</a>
-						</li>
-						{% endfor %}
-					</ul>
+						<span id="red-dot" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border-0 rounded-circle"></span>
+					</button>
+					<ul class="dropdown-menu py-1"></ul>
+					<style>
+						div#notifications > ul > li > a{
+							display: block;
+							height: calc(24px + 21px + 0.5rem);
+						}
+						div#notifications > ul > li:not(li:last-child){
+							margin-bottom: 0.25rem;
+						}
+					</style>
+					<script>{% include 'snippets/notifications.js' %}</script>
 				</div>
 				<div class="dropdown text-end">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
