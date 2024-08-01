@@ -1,11 +1,14 @@
-from datetime import time
-from django.http import  JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
 from django.views.generic.detail import DetailView
 from account.models import UserAccount
-from .models import Friend, FriendRequest
+from .models import Friend, FriendRequest, Notification
 from asgiref.sync import sync_to_async
+from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
+from django.utils import timezone as tz
+from django.core.paginator import Paginator
+
 
 class FriendsView(DetailView):
     model = UserAccount
@@ -122,11 +125,24 @@ class Notifications(View):
     async def get(self, request, *args, **kwargs):
         user = request.user
         user = await UserAccount.objects.aget(username=user)
+
+        page_number = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 10))
+
+        unseen_count = await Notification.objects.filter(
+            to_user=user, seen=False
+        ).acount()
+
+        notifications_qs = await sync_to_async(lambda: Notification.objects.filter( from_user=user).order_by('created_at'))()
+
+        paginator = Paginator(notifications_qs, per_page)
+        page = await sync_to_async(lambda: paginator.get_page(page_number))()
         res:list = []
-        from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
-        from django.utils import timezone as tz
-        async for fr in FriendRequest.objects.filter(from_user=user).aiterator():
+
+        async for fr in page.object_list:
+            action = await sync_to_async(lambda: fr.__str__())()
             to_user = await sync_to_async(lambda: fr.to_user)()
+            from_user = await sync_to_async(lambda: fr.from_user)()
             created_at = await sync_to_async(lambda: fr.created_at)()
             created_at_local = tz.localtime(created_at)
             natday = naturalday(created_at_local)
@@ -134,11 +150,21 @@ class Notifications(View):
             if natday == 'today':
                 formatted_time = f', {naturaltime(created_at_local)}'
             else:
-                formatted_time = f' at {created_at_local.strftime('%I:%M %p')}'
-
+                formatted_time = f' at {created_at_local.strftime("%I:%M %p")}'
             res.append({
-                'to_user': f'{to_user}',
-                'created_at': f'{natday}{formatted_time}'
+                'to_user': f'{from_user}',
+                'from_user': f'{to_user}',
+                'created_at': f'{natday}{formatted_time}',
+                'action': f'{action}',
+                'count': f'{unseen_count}'
             })
 
-        return JsonResponse({'result': res})
+        pagination = {
+            'total_pages': paginator.num_pages,
+            'current_page': page.number
+        }
+
+        return await sync_to_async(lambda: JsonResponse({
+            'result': res,
+            'pagination': pagination
+        }))()
