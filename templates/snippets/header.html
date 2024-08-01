@@ -49,16 +49,23 @@
 					</button>
 					<ul class="dropdown-menu py-1"></ul>
 					<style>
-						div#notifications > ul > li > a{
+						div#notifications > ul > li > div{
 							display: block;
 							height: calc(24px + 21px + 0.5rem);
+							width: 36vw;
 						}
 						div#notifications > ul > li:not(li:last-child){
 							margin-bottom: 0.25rem;
 						}
+						div#notifications > ul > li{
+							margin-bottom: 0.25rem;
+							width: 36vw;
+						}
 						div#notifications > ul{
-							height: calc(100% + 65px);
+							min-height: calc(24px + 21px + 0.5rem);
+							max-height: calc(100% + 65px);
 							overflow: scroll;
+							width: 36vw;
 						}
 					</style>
 					<script>{% include 'snippets/notifications.js' %}</script>

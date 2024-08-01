@@ -1,6 +1,9 @@
 from pathlib import Path
 from os.path import join
 
+import django
+from django import middleware
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-ni_4^q69elzvs9s$pgj!ob-l0r$1jh--@0ikiazlxf#fkb+3s0'
@@ -33,11 +36,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+	'channels',
 	
 	'app',
     'account',
 	'friend',
 ]
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -47,7 +60,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'django.middleware.gzip.GZipMiddleware',
 ]
+
+from django.middleware.gzip import GZipMiddleware
 
 ROOT_URLCONF = 'ChatApp.urls'
 

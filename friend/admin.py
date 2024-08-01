@@ -5,7 +5,7 @@ class FriendRequestAdmin(admin.ModelAdmin):
 	list_display = ('from_user', 'to_user')
 
 class NotificationAdmin(admin.ModelAdmin):
-	list_display = ('from_user', 'to_user', 'action')
+	list_display = ('from_user', 'to_user', 'action', 'seen')
 
 admin.site.register(Friend)
 admin.site.register(FriendRequest, FriendRequestAdmin)
