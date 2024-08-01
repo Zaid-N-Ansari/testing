@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <style>
 	.dropdown-toggle::after {
 		display: none;
@@ -19,9 +20,12 @@
 						</div>
 					</div>
 				</form>
-				<div class="position-absolute d-none flex-column align-items-center justify-content-between z-3" style="width: 30dvh; translate: 14dvh 4.5dvh;">
+				<div class="position-absolute d-none flex-column align-items-center justify-content-between z-3"
+					style="width: 30vw; translate: 14vw 4.5vw;">
 					<div id="search_result"></div>
-					<div id="pagination_controls" class="pagination-controls d-flex align-items-center justify-content-between user-select-none"></div>
+					<div id="pagination_controls"
+						class="pagination-controls d-flex align-items-center justify-content-between user-select-none">
+					</div>
 				</div>
 				<script>{% include 'snippets/search_user.js' %}</script>
 			</div>
@@ -31,11 +35,34 @@
 				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
 				<button
 					class="btn d-flex align-items-center switch-theme w-50 text-primary justify-content-start justify-content-lg-end justify-content-md-end ps-0">
-					<span class="material-icons me-2">dark_mode</span>
-					<span class="text-body-secondary fs-6">Dark</span>
+					<span class="material-icons me-2"></span>
+					<span class="text-body-secondary fs-6"></span>
 				</button>
 				<script>{% include 'snippets/change_theme.js' %}</script>
 				{% if request.user.is_authenticated %}
+				<style>
+				</style>
+				<div id="notifications" class="dropdown text-end">
+					<button type="button" class="btn position-relative align-items-center dropdown-toggle p-1 border-0" data-bs-toggle="dropdown" aria-expanded="false">
+						<span class="material-icons">notifications</span>
+						<span id="red-dot" class="position-absolute top-0 start-100 translate-middle text-danger border-0 rounded-circle"></span>
+					</button>
+					<ul class="dropdown-menu py-1"></ul>
+					<style>
+						div#notifications > ul > li > a{
+							display: block;
+							height: calc(24px + 21px + 0.5rem);
+						}
+						div#notifications > ul > li:not(li:last-child){
+							margin-bottom: 0.25rem;
+						}
+						div#notifications > ul{
+							height: calc(100% + 65px);
+							overflow: scroll;
+						}
+					</style>
+					<script>{% include 'snippets/notifications.js' %}</script>
+				</div>
 				<div class="dropdown text-end">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
 						data-bs-toggle="dropdown" aria-expanded="false">

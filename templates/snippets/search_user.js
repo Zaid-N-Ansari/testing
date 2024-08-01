@@ -53,7 +53,7 @@ $(document).ready(function () {
 				$("div#search_result > div.list-group").append(
 					`<a href="/account/profile/${user.username}" class="list-group-item list-group-item-action d-flex flex-row align-items-center justify-content-between" target="_blank">
                         ${user.username}
-                        <img src="${user.profile_image}" loading="lazy" style="width: 5dvh;" />
+                        <img src="${user.profile_image}" loading="lazy" style="width: 5vw;" />
                     </a>`
 				);
 			});
@@ -85,7 +85,6 @@ $(document).ready(function () {
 		$("#pagination_controls").html(paginationHTML);
 	}
 
-	// Function to navigate pages
 	window.goToPage = function (page) {
 		currentPage = page;
 		searchUsers(page);
