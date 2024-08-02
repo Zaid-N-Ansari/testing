@@ -9,31 +9,40 @@ $(document).ready(function () {
 
     function displayNotifications(data) {
         const { notifications } = data;
-        console.log(notifications);
-
         if (notifications.length > 0) {
-            $("span#red-dot").addClass("d-block").text(notifications[0].count > 0 ? notifications[0].count : '');
+            $("span#red-dot").addClass("d-block").text(notifications[0].count > 0 ? notifications[0].count : "");
 
             const existingNotificationIds = new Set($div_notif_ul.find("li").map(function () {
                 return this.dataset.id;
             }).get());
-
             notifications.forEach(notification => {
-                const { id, from_user, created_at, action, seen } = notification;
-                const seenClass = seen === "False" ? 'unseen' : 'seen';
+                const { pfi, id, from_user, created_at, action, seen } = notification;
+                const seenClass = seen === "False" ? "unseen" : "seen";
 
                 if (existingNotificationIds.has(id)) {
-                    $(`li[data-id="${id}"] > div > span`).eq(0).text(created_at);
+                    $(`li[data-id="${id}"] > div > span#timestamp`).text(created_at);
+
+                    $div_notif_ul.find(`li[data-id="${id}"] > div > div > span#indicator`)
+                        .text(seenClass.replace(/unseen|seen/, match => match === "unseen" ? "UnSeen" : "Seen"))
+                        .removeClass(`text-${seen === "False" ? "success" : "danger"}`)
+                        .addClass(`text-${seen === "False" ? "danger" : "success"}`);
                 } else {
                     $div_notif_ul.append(`
                         <li data-id="${id}">
-                            <div class="dropdown-item px-2 text-end ${seenClass}">
-                                <a target="_blank" class="text-end" href="/account/profile/${from_user}">${action}</a>
-                                <span class="small float-end">${created_at}</span>
-                                <span class="d-block w-50 float-end">
-                                    <span class="text-decoration-underline small text-reset material-icons float-start">check</span>
-                                    <span class="text-decoration-underline small text-reset material-icons float-end pe-5">close</span>
-                                </span>
+                            <div class="dropdown-item ${seenClass} d-flex flex-column align-items-end position-relative">
+                                <a target="_blank" href="/account/profile/${from_user}">${action}</a>
+                                <div class="d-flex justify-content-between w-50">
+                                    <button value="${from_user}" class="btn btn-sm" role="button" type="button" id="accept-fr-btn">
+                                        <span class="material-icons text-success">check</span>
+                                    </button>
+                                    <button value="${from_user}" class="btn btn-sm" role="button" type="button" id="reject-fr-btn">
+                                        <span class="material-icons text-danger">close</span>
+                                    </button>
+                                </div>
+                                <div class="w-100">
+                                    <span id="indicator" class="small text-danger">UnSeen</span>
+                                    <span id="timestamp" class="small float-end">${created_at}</span>
+                                </div>
                             </div>
                         </li>
                     `);
@@ -60,9 +69,10 @@ $(document).ready(function () {
         }
     }
 
-    function markAllSeen() {
+    function markAllSeen(id) {
         socket.send(JSON.stringify({
-            'command': 'mark_seen'
+            'command': 'mark_seen',
+            'id': id
         }));
     }
 
@@ -84,7 +94,6 @@ $(document).ready(function () {
     };
 
     function updatePagination({ current_page, total_pages }) {
-        console.log(current_page, perPage, total_pages);
         if (current_page < total_pages) {
             $div_notif_ul.on("scroll", handleScroll);
         } else {
@@ -105,13 +114,18 @@ $(document).ready(function () {
         }
     }
 
-    $("div#notifications > ul > li > div.dropdown-item").on("mouseover", function (e) {
-        // const $this = $(this);
-        // console.log($this);
-        // if ($this.hasClass('unseen')) {
-        //     markAllSeen();
-        //     $this.removeClass('unseen').addClass('seen');
-        // }
-        alert(e)
+    $div_notif_ul.on("click", "button#accept-fr-btn", function() {
+        socket.send(JSON.stringify({
+            "command": "accept_fr",
+            "user": $(this)[0].value
+        }));
+    });
+
+    $div_notif_ul.on("click", "li", function (e) {
+        const $this = $(this);
+        const id = $this[0].dataset.id;
+        if ($this.find("div").hasClass("unseen")) {
+            markAllSeen(id);
+        }
     });
 });

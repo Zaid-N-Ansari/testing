@@ -47,25 +47,17 @@
 						<span class="material-icons">notifications</span>
 						<span id="red-dot" class="position-absolute top-0 start-100 translate-middle text-danger border-0 rounded-circle"></span>
 					</button>
-					<ul class="dropdown-menu py-1"></ul>
+					<ul class="dropdown-menu p-0"></ul>
 					<style>
-						div#notifications > ul > li > div{
-							display: block;
-							height: calc(24px + 21px + 0.5rem);
-							width: 36vw;
-						}
-						div#notifications > ul > li:not(li:last-child){
-							margin-bottom: 0.25rem;
-						}
-						div#notifications > ul > li{
-							margin-bottom: 0.25rem;
-							width: 36vw;
-						}
 						div#notifications > ul{
-							min-height: calc(24px + 21px + 0.5rem);
-							max-height: calc(100% + 65px);
 							overflow: scroll;
-							width: 36vw;
+							height: calc(6rem - 2px);
+							scroll-behavior: smooth;
+							scroll-margin: 0px;
+						}
+						div#notifications > ul::-webkit-scrollbar{
+							width: 0.3rem;
+							height: 0rem;
 						}
 					</style>
 					<script>{% include 'snippets/notifications.js' %}</script>

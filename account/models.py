@@ -90,7 +90,7 @@ class UserAccount(AbstractBaseUser):
         upload_to=get_profile_image_filepath,
         default=get_profile_image,
         null=True,
-        blank=True
+        blank=True,
     )
 
     USERNAME_FIELD = 'username'

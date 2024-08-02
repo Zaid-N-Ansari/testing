@@ -47,7 +47,7 @@ class FriendRequest(models.Model):
         # Get or create Friend objects for both users and add them as friends
         from_user_friend, created = Friend.objects.get_or_create(user=self.from_user)
         to_user_friend, created = Friend.objects.get_or_create(user=self.to_user)
-        
+
         from_user_friend.add_friend(self.to_user)
         to_user_friend.add_friend(self.from_user)
 
@@ -86,14 +86,6 @@ class FriendRequest(models.Model):
 
 
 class Notification(models.Model):
-	ACTION_CHOICES = [
-        ('sent_friend_request', 'Sent Friend Request to'),
-        ('received_friend_request', 'Received Friend Request from'),
-        ('accepted_friend_request', 'Accepted Friend Request'),
-        ('rejected_friend_request', 'Rejected Friend Request'),
-        ('unfriended', 'Unfriended'),
-    ]
-
 	from_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='notifications_sent',
@@ -104,6 +96,13 @@ class Notification(models.Model):
         related_name='notifications_received',
         on_delete=models.CASCADE,
     )
+	ACTION_CHOICES = [
+        ('sent_friend_request', 'Sent Friend Request to'),
+        ('received_friend_request', 'Received Friend Request from'),
+        ('accepted_friend_request', 'Accepted Friend Request'),
+        ('rejected_friend_request', 'Rejected Friend Request'),
+        ('unfriended', 'Unfriended'),
+    ]
 	action = models.CharField(max_length=50, choices=ACTION_CHOICES)
 	created_at = models.DateTimeField(auto_now_add=True)
 	seen = models.BooleanField(default=False)
