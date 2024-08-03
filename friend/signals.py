@@ -8,10 +8,12 @@ def create_friend_request_notification(sender, instance, created, **kwargs):
 		Notification.objects.create(
             from_user=instance.from_user,
             to_user=instance.to_user,
-            action='sent_friend_request'
+            action=f'You sent fr to {instance.to_user}',
+			type='regular_notification'
         )
 		Notification.objects.create(
             from_user=instance.to_user,
             to_user=instance.from_user,
-            action='received_friend_request'
+            action=f'You recieved fr from {instance.from_user}',
+			type='friend_request_notification'
         )

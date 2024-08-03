@@ -10,20 +10,19 @@ $(document).ready(function () {
     function displayNotifications(data) {
         const { notifications } = data;
         if (notifications.length > 0) {
-            $("span#red-dot").addClass("d-block").text(notifications[0].count > 0 ? notifications[0].count : "");
+            $("span#red-dot").removeClass("d-none").addClass("d-block").text(notifications[0].count > 0 ? notifications[0].count : "");
 
-            const existingNotificationIds = new Set($div_notif_ul.find("li").map(function () {
+            const existingNotificationIds = new Set($div_notif_ul.find("li").map(function () {                
                 return this.dataset.id;
             }).get());
+
             notifications.forEach(notification => {
-                const { pfi, id, from_user, created_at, action, seen } = notification;
-                const seenClass = seen === "False" ? "unseen" : "seen";
+                const { id, type, from_user, created_at, action, seen } = notification;
+                const seenClass = (seen === "False" ? "unseen" : "seen");
 
                 if (existingNotificationIds.has(id)) {
-                    $(`li[data-id="${id}"] > div > span#timestamp`).text(created_at);
-
-                    $div_notif_ul.find(`li[data-id="${id}"] > div > div > span#indicator`)
-                        .text(seenClass.replace(/unseen|seen/, match => match === "unseen" ? "UnSeen" : "Seen"))
+                    $(`li[data-id="${id}"] > div > div > span#timestamp`).text(created_at);
+                    $(`li[data-id="${id}"] > div > div > span#indicator`)
                         .removeClass(`text-${seen === "False" ? "success" : "danger"}`)
                         .addClass(`text-${seen === "False" ? "danger" : "success"}`);
                 } else {
@@ -31,16 +30,16 @@ $(document).ready(function () {
                         <li data-id="${id}">
                             <div class="dropdown-item ${seenClass} d-flex flex-column align-items-end position-relative">
                                 <a target="_blank" href="/account/profile/${from_user}">${action}</a>
-                                <div class="d-flex justify-content-between w-50">
+                                ${type==="friend_request_notification"?`<div class="d-flex justify-content-between w-50">
                                     <button value="${from_user}" class="btn btn-sm" role="button" type="button" id="accept-fr-btn">
                                         <span class="material-icons text-success">check</span>
                                     </button>
                                     <button value="${from_user}" class="btn btn-sm" role="button" type="button" id="reject-fr-btn">
                                         <span class="material-icons text-danger">close</span>
                                     </button>
-                                </div>
-                                <div class="w-100">
-                                    <span id="indicator" class="small text-danger">UnSeen</span>
+                                </div>`:""}
+                                <div class="w-100 d-flex align-items-center justify-content-between">
+                                    <span id="indicator" class="material-icons" style="font-size:10px;">radio_button_checked</span>
                                     <span id="timestamp" class="small float-end">${created_at}</span>
                                 </div>
                             </div>
@@ -48,13 +47,6 @@ $(document).ready(function () {
                     `);
                 }
             });
-        } else {
-            $("span#red-dot").addClass("d-none");
-            $div_notif_ul.addClass("px-1 text-center").html(`
-                <li>
-                    <span>No Notifications Yet</span>
-                </li>
-            `);
         }
     }
 
@@ -69,7 +61,7 @@ $(document).ready(function () {
         }
     }
 
-    function markAllSeen(id) {
+    function markNotificationSeen(id) {
         socket.send(JSON.stringify({
             'command': 'mark_seen',
             'id': id
@@ -83,12 +75,16 @@ $(document).ready(function () {
 
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
+        console.log(data);
 
-        if (data.notifications) {
+        if (data.notifications !== undefined && data.notifications!=0) {       
             displayNotifications(data);
             updatePagination(data.pagination);
         } else if (data.status === 'success' && data.message) {
             console.log(data.message);
+        } else {
+            $("span#red-dot").addClass("d-none");
+            $div_notif_ul.html(`<li class="p-1 text-center">No Notifications Yet</li>`);
         }
         fetching = false;
     };
@@ -115,9 +111,20 @@ $(document).ready(function () {
     }
 
     $div_notif_ul.on("click", "button#accept-fr-btn", function() {
+        const id = $(this).parent().parent().parent()[0].dataset.id;
         socket.send(JSON.stringify({
             "command": "accept_fr",
-            "user": $(this)[0].value
+            "user": $(this)[0].value,
+            "id": id
+        }));
+    });
+
+    $div_notif_ul.on("click", "button#reject-fr-btn", function() {
+        const id = $(this).parent().parent().parent()[0].dataset.id;
+        socket.send(JSON.stringify({
+            "command": "reject_fr",
+            "user": $(this)[0].value,
+            "id": id
         }));
     });
 
@@ -125,7 +132,7 @@ $(document).ready(function () {
         const $this = $(this);
         const id = $this[0].dataset.id;
         if ($this.find("div").hasClass("unseen")) {
-            markAllSeen(id);
+            markNotificationSeen(id);
         }
     });
 });

@@ -4,7 +4,6 @@ from asgiref.sync import sync_to_async
 from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
 from django.utils import timezone as tz
 from django.core.paginator import Paginator
-
 from account.models import UserAccount
 from .models import FriendRequest, Notification
 
@@ -37,9 +36,39 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 await self.fetch_notifications(data.get('page', 1), data.get('per_page', 10))
             case 'accept_fr':
                 to_be_friend = data.get('user')
-                to_be_friend = await UserAccount.objects.filter(username=to_be_friend).afirst()
-                fr = await FriendRequest.objects.filter(from_user=to_be_friend).afirst()
-                await sync_to_async(fr.accept)()
+                id = data.get('id')
+                await self.accept_fr(to_be_friend, id)
+            case 'reject_fr':
+                to_be_friend = data.get('user')
+                id = data.get('id')
+                await self.reject_fr(to_be_friend, id)
+
+    async def accept_fr(self, to_be_friend, id):
+        to_be_friend = await UserAccount.objects.filter(username=to_be_friend).afirst()
+        fr = await FriendRequest.objects.filter(from_user=to_be_friend).afirst()
+        notif = await Notification.objects.filter(id=id).afirst()
+        print(notif)
+        notif.type = 'regular_notification'
+        await sync_to_async(notif.save)()
+        await sync_to_async(fr.accept)()
+        await self.send(text_data=json.dumps({
+            'status': 'success',
+            'message': 'accepted'
+        }))
+        print(f'{to_be_friend} accepted your fr')
+
+    async def reject_fr(self, to_be_friend, id):
+        to_be_friend = await UserAccount.objects.filter(username=to_be_friend).afirst()
+        fr = await FriendRequest.objects.filter(from_user=to_be_friend).afirst()
+        notif = await Notification.objects.filter(id=id).afirst()
+        notif.type = 'regular_notification'
+        await sync_to_async(notif.save)()
+        await sync_to_async(fr.reject)()
+        await self.send(text_data=json.dumps({
+            'status': 'success',
+            'message': 'rejected'
+        }))
+        print(f'{to_be_friend} rejected your fr')
 
     async def mark_notifications_seen(self, id):
         await sync_to_async(Notification.objects.filter(from_user=self.user, seen=False, id=id).update)(seen=True)
@@ -56,20 +85,19 @@ class NotificationConsumer(AsyncWebsocketConsumer):
 
         unseen_count = await Notification.objects.filter(from_user=user, seen=False).acount()
 
-        notifications_qs = await sync_to_async(lambda: Notification.objects.filter(from_user=user).order_by('-created_at'))()
+        notif_qs = await sync_to_async(lambda: Notification.objects.filter(from_user=user).order_by('-created_at'))()
 
-        paginator = Paginator(notifications_qs, per_page)
+        paginator = Paginator(notif_qs, per_page)
         page = await sync_to_async(lambda: paginator.get_page(page))()
         res:list = []
 
-        async for fr in page.object_list:
-            id = await sync_to_async(lambda: fr.id)()
-            action = await sync_to_async(lambda: fr.__str__())()
-            to_user = await sync_to_async(lambda: fr.to_user)()
-            from_user = await sync_to_async(lambda: fr.from_user)()
-            pfi = await sync_to_async(lambda: UserAccount.objects.filter(username=from_user).first().profile_image.url)()
-            created_at = await sync_to_async(lambda: fr.created_at)()
-            seen = await sync_to_async(lambda: fr.seen)()
+        async for notif in page.object_list:
+            id = await sync_to_async(lambda: notif.id)()
+            type = await sync_to_async(lambda: notif.type)()
+            action = await sync_to_async(lambda: notif.action)()
+            to_user = await sync_to_async(lambda: notif.to_user)()
+            created_at = await sync_to_async(lambda: notif.created_at)()
+            seen = await sync_to_async(lambda: notif.seen)()
             created_at_local = tz.localtime(created_at)
             natday = naturalday(created_at_local)
             formatted_time = ''
@@ -79,8 +107,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
                 formatted_time = f' at {created_at_local.strftime("%I:%M %p")}'
             res.append({
                 'id': f'{id}',
-                'pfi': f'{pfi}',
-                'to_user': f'{from_user}',
+                'type': f'{type}',
                 'from_user': f'{to_user}',
                 'created_at': f'{natday}{formatted_time}',
                 'action': f'{action}',

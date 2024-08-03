@@ -45,19 +45,15 @@
 				<div id="notifications" class="dropdown text-end">
 					<button type="button" class="btn position-relative align-items-center dropdown-toggle p-1 border-0" data-bs-toggle="dropdown" aria-expanded="false">
 						<span class="material-icons">notifications</span>
-						<span id="red-dot" class="position-absolute top-0 start-100 translate-middle text-danger border-0 rounded-circle"></span>
+						<span id="red-dot" class="position-absolute top-0 start-100 translate-middle text-info border-0 rounded-circle"></span>
 					</button>
 					<ul class="dropdown-menu p-0"></ul>
 					<style>
 						div#notifications > ul{
+							max-height: calc(6rem - 2px);
+							min-height: 2rem;
+							width: 20rem;
 							overflow: scroll;
-							height: calc(6rem - 2px);
-							scroll-behavior: smooth;
-							scroll-margin: 0px;
-						}
-						div#notifications > ul::-webkit-scrollbar{
-							width: 0.3rem;
-							height: 0rem;
 						}
 					</style>
 					<script>{% include 'snippets/notifications.js' %}</script>
