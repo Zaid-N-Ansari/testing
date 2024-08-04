@@ -44,16 +44,25 @@
 			height: 0rem;
 		}
 
-		::-webkit-scrollbar-track {
-			background-color: var(--bs-body-color);
-		}
-
 		::-webkit-scrollbar-thumb {
 			background-color: var(--bs-secondary-text-emphasis);
 		}
 
+
 		::-webkit-scrollbar-thumb:hover {
 			background-color: var(--bs-secondary);
+		}
+
+		@media(prefers-color-scheme: dark) {
+			::-webkit-scrollbar-track {
+				background-color: var(--bs-dark);
+			}
+		}
+
+		@media(prefers-color-scheme: light) {
+			::-webkit-scrollbar-track {
+				background-color: var(--bs-light);
+			}
 		}
 	</style>
 </head>

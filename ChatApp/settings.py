@@ -1,9 +1,6 @@
 from pathlib import Path
 from os.path import join
 
-import django
-from django import middleware
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-ni_4^q69elzvs9s$pgj!ob-l0r$1jh--@0ikiazlxf#fkb+3s0'
@@ -12,13 +9,13 @@ DEBUG = True
 
 AUTH_USER_MODEL = 'account.UserAccount'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep the default backend
-    'account.backends.EmailOrUserIdBackend',    # Add your custom backend
+    'account.backends.EmailOrUserIdBackend'
 ]
 
 LOGIN_REDIRECT_URL = 'home'
@@ -37,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
 	'channels',
-	
+
 	'app',
     'account',
 	'friend',
@@ -62,8 +59,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 	'django.middleware.gzip.GZipMiddleware',
 ]
-
-from django.middleware.gzip import GZipMiddleware
 
 ROOT_URLCONF = 'ChatApp.urls'
 

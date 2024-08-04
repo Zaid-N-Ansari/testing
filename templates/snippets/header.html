@@ -50,10 +50,13 @@
 					<ul class="dropdown-menu p-0"></ul>
 					<style>
 						div#notifications > ul{
-							max-height: calc(6rem - 2px);
+							max-height: calc(11rem - 14px);
 							min-height: 2rem;
 							width: 20rem;
 							overflow: scroll;
+						}
+						div#notifications > ul::-webkit-scrollbar{
+							width: 0.2rem;
 						}
 					</style>
 					<script>{% include 'snippets/notifications.js' %}</script>
