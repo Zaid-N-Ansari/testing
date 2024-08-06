@@ -53,7 +53,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         natday = naturalday(created_at_local)
         formatted_time = f', {naturaltime(created_at_local)}' if natday == 'today' else f' at {created_at_local.strftime("%I:%M %p")}'
         return {
-            'id': str(await sync_to_async(lambda: notif.id)()),
+            'id': int(await sync_to_async(lambda: notif.id)()),
             'type': str(await sync_to_async(lambda: notif.type)()),
             'from_user': str(await sync_to_async(lambda: notif.to_user)()),
             'created_at': f'{natday}{formatted_time}',
@@ -63,7 +63,7 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         }
 
 
-    async def get_notifications(self, user, page, per_page) -> List[Dict[str, str]]:
+    async def get_notifications(self, user, page, per_page):
         notif_qs = await sync_to_async(lambda: Notification.objects.filter(from_user=user).order_by('-created_at'))()
         paginator = Paginator(notif_qs, per_page)
         page_obj = await sync_to_async(lambda: paginator.get_page(page))()
@@ -89,8 +89,8 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         notification = await self.format_notification(notif)
 
         await self.send(text_data=json.dumps({
-            'status': 'success',
-            'notification': notification,
+            'status':'success',
+            'notification': notification
         }))
         print(f'{to_be_friend} {action}ed your fr')
 

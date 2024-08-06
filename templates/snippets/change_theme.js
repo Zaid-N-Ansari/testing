@@ -48,6 +48,10 @@ $(document).ready(function () {
 		checkAndChangeTheme(newTheme);
 		$("html").attr("data-bs-theme", newTheme);
 		localStorage.setItem("theme", newTheme);
+		$("body").css("transition", "background-color 200ms ease");
+		$("header").css("transition", "background-color 200ms ease");
+		$("span.badge").css("transition", "background-color 200ms ease");
+		$("button.switch-theme").css("transition", "color 200ms ease");
 	});
 
 	setInitialTheme();

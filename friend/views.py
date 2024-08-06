@@ -89,14 +89,17 @@ class CancelFriendRequest(View):
 class AcceptFriendRequest(View):
     http_method_names = ['post']
 
-    def post(self, request, *args, **kwargs):
-        user = request.POST.get('friend')
+    async def post(self, request, *args, **kwargs):
+        user = request.POST.get('user')
         try:
-            from_user = UserAccount.objects.get(username=request.user)
-            to_user = UserAccount.objects.get(username=user)
-
-            FriendRequest.objects.create(from_user=from_user, to_user=to_user).save()
-
+            print(request.POST)
+            user = await UserAccount.objects.filter(username=user).afirst()
+            fr = await FriendRequest.objects.filter(from_user=user).afirst()
+            notif = await Notification.objects.filter(from_user=user).afirst()
+            notif.type = 'regular_notification'
+            fr.accept()
+            notif.save()
+            fr.delete()
         except Exception as e:
             print(e)
             return JsonResponse({'result': 'An Unexpected Error has Occured'})
@@ -107,15 +110,18 @@ class AcceptFriendRequest(View):
 class RejectFriendRequest(View):
     http_method_names = ['post']
 
-    def post(self, request, *args, **kwargs):
+    async def post(self, request, *args, **kwargs):
         user = request.POST.get('friend')
         try:
-            from_user = UserAccount.objects.get(username=request.user)
-            to_user = UserAccount.objects.get(username=user)
-            
-            FriendRequest.objects.get(from_user=from_user, to_user=to_user).reject()
+            from_user = await UserAccount.objects.aget(username=user)
+            to_user = await UserAccount.objects.aget(username=request.user)
+
+            fr = await FriendRequest.objects.aget(from_user=from_user, to_user=to_user)
+
+            # await sync_to_async(fr.reject)()
 
         except Exception as e:
+            print(e)
             return JsonResponse({'result': 'An Unexpected Error has Occured'})
 
         else:

@@ -6,7 +6,6 @@ from .views import (
 	AcceptFriendRequest,
 	RejectFriendRequest,
 	CancelFriendRequest,
-	# Notifications,
 )
 
 app_name = 'friend'
@@ -18,5 +17,4 @@ urlpatterns = [
 	path('accept/', AcceptFriendRequest.as_view(), name='accept'),
 	path('reject/', RejectFriendRequest.as_view(), name='reject'),
 	path('cancel/', CancelFriendRequest.as_view(), name='cancel'),
-	# path('notifications/', Notifications.as_view(), name='notifications'),
 ]

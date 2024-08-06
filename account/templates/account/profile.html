@@ -12,27 +12,19 @@ Profile
 {% block content %}
 
 <div class="container h-full">
-	<style>
-		div.container {
-			min-height: 100dvh;
-		}
-	</style>
 	<div class="row mt-5 justify-content-center h-100 shadow p-2">
 		<div class="col-md-6 col-lg-4 col-12">
 			<div class="d-flex justify-content-center justify-content-md-start">
-				<div style="width: 30dvh; height: 30dvh;">
-					<img class="rounded-circle img_edit w-100 h-100" src="{{ user.profile_image.url }}"
-						alt="Profile Image" loading="lazy">
-				</div>
+				<img class="rounded-circle img_edit" src="{{ user.profile_image.url }}" alt="{{user}} Profile Image" loading="lazy" style="width: 15rem;">
 			</div>
 		</div>
 		<div class="col-md-6 col-lg-4 col-10 d-flex text-center">
 			<div class="h-100 w-100 d-md-flex d-lg-flex flex-column justify-content-evenly user-select-none">
 				<div class="d-flex align-items-center justify-content-center mb-3">
-					<p class="lead mt-2 mt-md-0 mb-0 mt-lg-0 w-100">
+					<p class="lead mt-2 mt-md-0 mb-0 mt-lg-0 w-100 position-relative">
 						<span class="tex-center">{{ user }}</span>
 						{% if user.id == request.user.id %}
-						<a href="{% url 'account:edit' request.user %}" class="float-end">
+						<a href="{% url 'account:edit' request.user %}" class="float-end position-absolute top-0 end-0">
 							<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="top"
 								title="Edit Profile">settings</span>
 						</a>
@@ -77,19 +69,33 @@ Profile
 						<span class="material-icons">chat</span>
 					</button>
 					{% else %}
-					class="text-start">
-						{% if request_pending %}
+						{% if fr_from_you %}
+						class="text-start shadow rounded">
 						<button id="cancel-request-btn" class="btn" data-bs-toggle="tooltip" data-bs-placement="bottom"
 							title="Pending Friend Request">
 							<span class="material-icons">schedule</span>
 						</button>
 						<script>{% include 'friend/snippets/cancel.js' %}</script>
 						{% else %}
-						<button id="addfriend-btn" class="btn text-success" data-bs-toggle="tooltip" data-bs-placement="right"
-							title="Friend {{user.username}}">
-							<span class="material-icons">person_add</span>
-						</button>
-						<script>{% include 'friend/snippets/addfriend.js' %}</script>
+							{% if fr_to_you %}
+							class="form-group mt-3 d-flex justify-content-around">
+							<button aria-valuetext="accept" id="fr-action-btn" class="btn text-success" data-bs-toggle="tooltip" data-bs-placement="left"
+								title="Accept fr">
+								<span aria-valuetext="accept" class="material-icons">check</span>
+							</button>
+							<button aria-valuetext="reject" id="fr-action-btn" class="btn text-danger" data-bs-toggle="tooltip" data-bs-placement="right"
+								title="Reject fr">
+								<span aria-valuetext="reject" class="material-icons">close</span>
+							</button>
+							<script>{% include 'friend/snippets/friend-action.js' %}</script>
+							{% else %}
+							class="text-start">
+							<button id="addfriend-btn" class="btn text-success" data-bs-toggle="tooltip" data-bs-placement="right"
+								title="Friend {{user.username}}">
+								<span class="material-icons">person_add</span>
+							</button>
+							<script>{% include 'friend/snippets/accept.js' %}</script>
+							{% endif %}
 						{% endif %}
 					{% endif %}
 				</div>
