@@ -66,7 +66,6 @@ class ProfileView(LoginRequiredMixin, DetailView):
         context['is_friend'] = logged_in_user in friend.friends.all()
         context['fr_from_you'] = FriendRequest.objects.filter(from_user=logged_in_user, to_user=user).exists()
         context['fr_to_you'] = FriendRequest.objects.filter(from_user=user, to_user=logged_in_user).exists()
-        print(context['fr_from_you'], context['fr_to_you'])
         context['friends_count'] = friend.friends.count() if logged_in_user == user else ''
         return context
 

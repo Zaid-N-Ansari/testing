@@ -4,10 +4,6 @@ from django.views import View
 from django.views.generic.detail import DetailView
 from account.models import UserAccount
 from .models import Friend, FriendRequest, Notification
-from asgiref.sync import sync_to_async
-from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
-from django.utils import timezone as tz
-from django.core.paginator import Paginator
 
 
 class FriendsView(DetailView):

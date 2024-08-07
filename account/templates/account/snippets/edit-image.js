@@ -1,6 +1,6 @@
 $(document).ready(function () {
-	$("span.span_edit").css("opacity", "0");
-	$("div.edit").on("mouseenter", function (e) {
+	$("div.edit")
+	.on("mouseenter", function () {
 		$(this).children("img.img_edit").css({
 			"opacity": "0.8",
 			"transition": "opacity 200ms ease"
@@ -10,30 +10,41 @@ $(document).ready(function () {
 			"opacity": "1",
 			"transition": "opacity 200ms ease"
 		});
-	});
-
-	$("div.edit").on("mouseleave", function (e) {
+	})
+	.on("mouseleave", function () {
 		$(this).children("img.img_edit").css("opacity", "1");
 		$(this).children("span.span_edit").css("opacity", "0");
 	});
 
-	$("span.span_edit").on("click", function () {
+	$("span.span_edit")
+	.css("opacity", "0")
+	.on("click", function () {
 		$("input[type='file']").click();
 	});
 });
 
+function readImageFile(input) {
+	const file = input.files[0];
+	if (file) {
+		if (file.size >= 10485760) {
+			alert("Image Size maximum 10MB Size Exceded");
+			return;
+		}
 
-function readURL(input) {
-	if (input.files && input.files[0]) {
+		const validExt = ["jpeg", "jpg", "png", "avif", "bmp", "apng", "webp", "heif", "svg", "ico", "xbm", "tif", "tiff", "jfif", "svgz", "pjp", "pjpeg"];
+		const ext = file.type.split("/")[1];
+
+		if (!validExt.includes(ext)) {
+			alert("InValid Image Format");
+			return;
+		}
+
 		const reader = new FileReader();
 		reader.onload = function (e) {
 			let image = e.target.result;
-			const ext = image.split("/")[1].split(";")[0];
-			const validExt = ["jpeg", "jpg", "png", "avif", "bmp", "apng", "webp", "heif", "svg", "ico", "xbm", "tif", "tiff", "jfif", "svgz", "pjp", "pjpeg"];
-			if (!validExt.includes(ext)) return;
-
 			const imageField = $("img")[1];
 			imageField.src = image;
+			const imageData = image.split(",")[1];
 			const cropper = new Cropper(imageField, {
 				aspectRatio: 1,
 				viewMode: 1,
@@ -49,21 +60,10 @@ function readURL(input) {
 					$("#id_x").val(x);
 					$("#id_y").val(y);
 					$("#id_s").val(s);
-					$("#id_image").val(isImgSizeValid(image));
+					$("#id_image").val(imageData);
 				}
 			});
 		};
-		reader.readAsDataURL(input.files[0]);
+		reader.readAsDataURL(file);
 	}
-}
-
-function isImgSizeValid(img) {
-	var startIndex = img.indexOf("base64,") + 7;
-	var base64Str = img.substr(startIndex);
-	var decode = atob(base64Str);
-	if (decode.length >= 10485760) {
-		alert("Image File Size Exceded, should not be greater than 10 MB");
-		return null;
-	}
-	return base64Str;
 }

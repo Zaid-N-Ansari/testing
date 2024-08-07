@@ -157,5 +157,5 @@ class UserUpdateForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'autofocus':'true'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'profile_image': forms.FileInput(attrs={'class':'form-control d-none', 'onchange':'readURL(this)'})
+            'profile_image': forms.FileInput(attrs={'class':'form-control d-none', 'onchange':'readImageFile(this)'})
         }
