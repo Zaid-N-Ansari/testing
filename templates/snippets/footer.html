@@ -1,14 +1,23 @@
-<footer class="pb-3 my-4 mb-0 pb-0">
-	<ul class="nav justify-content-center border-bottom pb-3 mb-3">
-		<li class="nav-item"><a href="{% url 'home' %}" class="nav-link px-2 text-body-secondary">Home</a></li>
-		<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li>
-		<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Pricing</a></li>
-		<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
-		<li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
+<footer class="pb-3">
+	<ul class="nav justify-content-center mb-3 border-bottom">
+		<li class="nav-item">
+			<a href="{% url 'home' %}" class="nav-link text-body-secondary">Home</a>
+		</li>
+		<li class="nav-item">
+			<a href="#" class="nav-link text-body-secondary">Features</a>
+		</li>
+		<li class="nav-item">
+			<a href="#" class="nav-link text-body-secondary">Pricing</a>
+		</li>
+		<li class="nav-item">
+			<a href="#" class="nav-link text-body-secondary">FAQs</a>
+		</li>
+		<li class="nav-item">
+			<a href="#" class="nav-link text-body-secondary">About</a>
+		</li>
 	</ul>
-	<p class="text-center text-body-secondary year">ChatApp, Inc</p>
+	<p class="text-center mt-3 m-0 text-body-secondary year">ChatApp, Inc</p>
 	<script>
-		const year = document.querySelector("p.year");
-		year.innerText += ` © ${new Date().getFullYear()}`;
+		document.querySelector("p.year").innerText += ` © ${new Date().getFullYear()}`;
 	</script>
 </footer>

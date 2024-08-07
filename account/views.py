@@ -1,3 +1,4 @@
+from PIL import Image
 from os.path import join, exists
 from os import mkdir
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -9,7 +10,7 @@ from django.shortcuts import redirect, render
 from django.db.models import Q
 from django.http import Http404, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
-import cv2
+from asgiref.sync import sync_to_async
 from django.core.files.storage import FileSystemStorage
 from base64 import b64decode
 from django.core.files import File
@@ -105,65 +106,63 @@ class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
     def dispatch(self, request, *args, **kwargs):
         return CustomLogoutView.as_view()(request)
 
-
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         form = UserUpdateForm(instance=request.user)
         return render(request, 'account/edit.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
-        user:UserAccount = request.user
+        user = request.user
         data = request.POST
         form = UserUpdateForm(data, request.FILES, instance=user)
-        try:
-            if data.get('x') or data.get('y') or data.get('s'):
-                x = int(float(data.get('x')))
-                y = int(float(data.get('y')))
-                s = int(float(data.get('s')))
 
-                imgStr = data.get('image')
-
-                url = self.save_tmp_img(imgStr, user)
-
-                img = cv2.imread(url)
-
-                crop_img = img[y:y+s, x:x+s]
-
-                cv2.imwrite(url, crop_img)
-
-                user.profile_image.save('profile_image.png', File(open(url, 'rb')))
-
-                user.save()
-
-                with ThreadPoolExecutor() as executor:
-                    executor.submit(self.remove_directory, f'temp/{user.pk}')
+        if any(data.get(key) for key in ['x', 'y', 's']):
+            try:
+                self.handle_image_crop(data, user)
                 return redirect(reverse('account:profile', kwargs={'username': user.username}))
-        except Exception as e:
-            print(e)
+            except Exception as e:
+                print(f"Image processing error: {e}")
 
         if form.is_valid():
             form.save()
             return redirect(reverse('account:profile', kwargs={'username': user.username}))
+
         return render(request, 'account/edit.html', {'form': form})
 
-    def save_tmp_img(self, imgStr, user):
+    def handle_image_crop(self, data, user):
+        x, y, s = (int(float(data[key])) for key in ['x', 'y', 's'])
+        img_str = data.get('image')
+        temp_url = self.save_tmp_img(img_str, user)
+
+        self.process_and_save_image(temp_url, x, y, s, user)
+        self.remove_directory(f'temp/{user.pk}')
+
+    def process_and_save_image(self, img_path, x, y, size, user):
+        with Image.open(img_path) as img:
+            crop_img = img.crop((x, y, x + size, y + size))
+            crop_img.save(img_path)
+
+        with open(img_path, 'rb') as f:
+            user.profile_image.save('profile_image.png', File(f))
+
+        user.save()
+
+    def save_tmp_img(self, img_str, user):
+        dir_path = f'temp/{user.pk}'
+        if not exists(dir_path):
+            mkdir(dir_path)
+
+        url = join(dir_path, f'tmp_{user.pk}_img.png')
+
         try:
-            if not exists('temp'):
-                mkdir('temp')
-            if not exists(f'temp/{user.pk}'):
-                mkdir(f'temp/{user.pk}')
-        
-            url = join(f'temp/{user.pk}', f'tmp_{user.pk}_img.png')
-            storage = FileSystemStorage(location=url)
-            img = b64decode(imgStr)
-            with storage.open('', 'wb+') as dest:
-                dest.write(img)
-                dest.close()
-            return url
+            with open(url, 'wb') as file:
+                file.write(b64decode(img_str))
         except Exception as e:
             if str(e) == 'Incorrect padding':
-                imgStr += '=' * ((4 - len(imgStr) % 4) % 4)
-                return self.save_tmp_img(imgStr, user)
+                img_str += '=' * ((4 - len(img_str) % 4) % 4)
+                return self.save_tmp_img(img_str, user)
+
+        return url
 
     def remove_directory(self, path):
         try:
@@ -171,7 +170,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         except Exception as e:
             print(f"Error removing directory {path}: {e}")
 
-
+            
 class SearchView(View):
     http_method_names = ['post']
 

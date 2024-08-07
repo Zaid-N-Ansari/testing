@@ -5,6 +5,7 @@
 
 <link type="text/css" rel="stylesheet" href="{% static 'cropperjs/dist/cropper.min.css' %}">
 <script src="{% static 'cropperjs/dist/cropper.min.js' %}"></script>
+<script>{% include 'account/snippets/edit-image.js' %}</script>
 
 <div class="container h-full">
 	<div class="row mt-5 justify-content-center h-100 shadow p-2">
@@ -66,7 +67,5 @@
 		</div>
 	</div>
 </div>
-
-<script>{% include 'account/snippets/edit-image.js' %}</script>
 
 {% endblock content %}
