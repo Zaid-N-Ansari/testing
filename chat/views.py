@@ -1,3 +1,1 @@
-from django.shortcuts import render
-
-# Create your views here.
+#  Views to be defined as of 9 Aug, 2024

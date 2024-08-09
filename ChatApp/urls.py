@@ -8,7 +8,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 	path('', HomeView.as_view(), name='home'),
 	path('account/', include('account.urls', namespace='account')),
-	path('friend/', include('friend.urls', namespace='friend'))
+	path('friend/', include('friend.urls', namespace='friend')),
+	path('chat/', include('chat.urls', namespace='chat')),
 ]
 
 if settings.DEBUG:

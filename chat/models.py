@@ -1,3 +1,10 @@
 from django.db import models
 
-# Create your models here.
+class PersonalChat(models.Model):
+	pass
+
+class GroupChat(models.Model):
+	pass
+
+class Group(models.Model):
+	pass
