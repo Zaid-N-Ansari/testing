@@ -8,7 +8,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.shortcuts import redirect, render
 from django.db.models import Q
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from asgiref.sync import sync_to_async
 from django.core.files.storage import FileSystemStorage

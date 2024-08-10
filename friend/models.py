@@ -1,4 +1,5 @@
 from django.db import models
+from asgiref.sync import sync_to_async
 from django.conf import settings
 
 from account.models import UserAccount
@@ -30,6 +31,9 @@ class Friend(models.Model):
 	def remove_friend(self, to_remove_friend):
 		if self.is_friend(to_remove_friend):
 			self.friends.remove(to_remove_friend)
+
+	async def friends_count(self):
+		return await self.friends.acount()
 
 
 class FriendRequest(models.Model):

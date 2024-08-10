@@ -1,6 +1,6 @@
 $(document).ready(function () {
     const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const socket = new WebSocket(`${wsProtocol}://${window.location.host}/ws/notifications/`);
+    const notificationWS = new WebSocket(`${wsProtocol}://${window.location.host}/ws/notifications/`);
 
     let currentPage = 1;
     const perPage = 4;
@@ -78,7 +78,7 @@ $(document).ready(function () {
         return li;
     }
 
-    function renderNotifications(notifications, isNew) {      
+    function renderNotifications(notifications, isNew) {
         if (Array.isArray(notifications)) {
             notifications.forEach(notification => {
                 const { id, type, from_user, created_at, action, count, seen } = notification;
@@ -109,7 +109,7 @@ $(document).ready(function () {
     function fetchNotifications(page, perPage) {
         if (!fetching) {
             fetching = true;
-            socket.send(JSON.stringify({
+            notificationWS.send(JSON.stringify({
                 'command': 'fetch_notifications',
                 'page': page,
                 'per_page': perPage
@@ -118,13 +118,13 @@ $(document).ready(function () {
     }
 
     function markNotificationSeen(id) {
-        socket.send(JSON.stringify({
+        notificationWS.send(JSON.stringify({
             'command': 'mark_seen',
             'id': id
         }));
     }
 
-    socket.onopen = function () {
+    notificationWS.onopen = function () {
         fetchNotifications(currentPage, perPage);
         setInterval(() => {
             isNewNotification = true;
@@ -132,7 +132,7 @@ $(document).ready(function () {
         }, 2000);
     };
 
-    socket.onmessage = function (event) {
+    notificationWS.onmessage = function (event) {
         const data = JSON.parse(event.data);
 
         if (data.notifications !== undefined) {
@@ -162,7 +162,7 @@ $(document).ready(function () {
         const scrollHeight = $this[0].scrollHeight;
         const height = $this.height();
 
-        if (scrollTop + height >= scrollHeight - 60 && !fetching) {
+        if (scrollTop + height >= scrollHeight - 50 && !fetching) {
             ++currentPage;
             fetchNotifications(currentPage, perPage);
         }
@@ -171,9 +171,9 @@ $(document).ready(function () {
     $div_notif_ul.on("click", "button#accept-fr-btn, button#reject-fr-btn", function (e) {
         e.preventDefault();
         const id = $(this).closest("li")[0].dataset.id;
-        const command = this.id === 'accept-fr-btn' ? 'accept_fr' : 'reject_fr';
+        const command = (this.id === 'accept-fr-btn' ? 'accept_fr' : 'reject_fr');
 
-        socket.send(JSON.stringify({
+        notificationWS.send(JSON.stringify({
             "command": command,
             "user": $(this)[0].value,
             "id": id
