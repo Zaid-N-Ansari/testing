@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
     const notificationWS = new WebSocket(`${wsProtocol}://${window.location.host}/ws/notifications/`);
 
     let currentPage = 1;
@@ -12,39 +12,39 @@ $(document).ready(function () {
     function makeNewLiElm(id, type, from_user, created_at, action, count, seen) {
         const seenClass = (seen === "True" ? "seen" : "unseen");
 
-        const li = document.createElement('li');
-        li.setAttribute('data-id', id);
+        const li = document.createElement("li");
+        li.setAttribute("data-id", id);
 
-        const dropdownItem = document.createElement('div');
-        dropdownItem.classList.add('dropdown-item', seenClass, 'd-flex', 'flex-column', 'align-items-end', 'position-relative');
+        const dropdownItem = document.createElement("div");
+        dropdownItem.classList.add("dropdown-item", seenClass, "d-flex", "flex-column", "align-items-end", "position-relative");
 
-        const link = document.createElement('a');
-        link.setAttribute('target', '_blank');
-        link.setAttribute('href', `/account/profile/${from_user}`);
+        const link = document.createElement("a");
+        link.setAttribute("target", "_blank");
+        link.setAttribute("href", `/account/profile/${from_user}`);
         link.textContent = action;
 
         dropdownItem.appendChild(link);
 
         if (type === "friend_request_notification") {
-            const friendAction = document.createElement('div');
-            friendAction.id = 'friend-action';
-            friendAction.classList.add('d-flex', 'justify-content-between', 'w-50');
+            const friendAction = document.createElement("div");
+            friendAction.id = "friend-action";
+            friendAction.classList.add("d-flex", "justify-content-between", "w-50");
 
-            const acceptButton = document.createElement('button');
-            acceptButton.setAttribute('value', from_user);
-            acceptButton.classList.add('btn', 'btn-sm');
-            acceptButton.setAttribute('role', 'button');
-            acceptButton.setAttribute('type', 'button');
-            acceptButton.id = 'accept-fr-btn';
-            acceptButton.innerHTML = '<span class="material-icons text-success">check</span>';
+            const acceptButton = document.createElement("button");
+            acceptButton.setAttribute("value", from_user);
+            acceptButton.classList.add("btn", "btn-sm");
+            acceptButton.setAttribute("role", "button");
+            acceptButton.setAttribute("type", "button");
+            acceptButton.id = "accept-fr-btn";
+            acceptButton.innerHTML = "<span class='material-icons text-success'>check</span>";
 
-            const rejectButton = document.createElement('button');
-            rejectButton.setAttribute('value', from_user);
-            rejectButton.classList.add('btn', 'btn-sm');
-            rejectButton.setAttribute('role', 'button');
-            rejectButton.setAttribute('type', 'button');
-            rejectButton.id = 'reject-fr-btn';
-            rejectButton.innerHTML = '<span class="material-icons text-danger">close</span>';
+            const rejectButton = document.createElement("button");
+            rejectButton.setAttribute("value", from_user);
+            rejectButton.classList.add("btn", "btn-sm");
+            rejectButton.setAttribute("role", "button");
+            rejectButton.setAttribute("type", "button");
+            rejectButton.id = "reject-fr-btn";
+            rejectButton.innerHTML = "<span class='material-icons text-danger'>close</span>";
 
             friendAction.appendChild(acceptButton);
             friendAction.appendChild(rejectButton);
@@ -52,20 +52,20 @@ $(document).ready(function () {
             dropdownItem.appendChild(friendAction);
         }
 
-        const utils = document.createElement('div');
-        utils.id = 'utils';
-        utils.classList.add('w-100', 'd-flex', 'align-items-center', 'justify-content-between');
+        const utils = document.createElement("div");
+        utils.id = "utils";
+        utils.classList.add("w-100", "d-flex", "align-items-center", "justify-content-between");
 
-        const indicator = document.createElement('span');
-        indicator.id = 'indicator';
-        indicator.classList.add('material-icons', seen === "True" ? "text-success" : "text-danger");
-        indicator.style.fontSize = '10px';
-        indicator.textContent = 'radio_button_checked';
+        const indicator = document.createElement("span");
+        indicator.id = "indicator";
+        indicator.classList.add("material-icons", seen === "True" ? "text-success" : "text-danger");
+        indicator.style.fontSize = "10px";
+        indicator.textContent = "radio_button_checked";
 
-        const timestamp = document.createElement('span');
-        timestamp.id = 'timestamp';
-        timestamp.classList.add('float-end');
-        timestamp.style.fontSize = 'small';
+        const timestamp = document.createElement("span");
+        timestamp.id = "timestamp";
+        timestamp.classList.add("float-end");
+        timestamp.style.fontSize = "small";
         timestamp.textContent = created_at;
 
         utils.appendChild(indicator);
@@ -85,7 +85,7 @@ $(document).ready(function () {
 
                 if (existingIds.has(id)) {
                     if (type === "regular_notification") {
-                        $(`li[data-id="${id}"] > div > div#friend-action`).html('');
+                        $(`li[data-id="${id}"] > div > div#friend-action`).html("");
                     }
 
                     $(`li[data-id="${id}"] > div > div > span#timestamp`).text(created_at);
@@ -110,17 +110,17 @@ $(document).ready(function () {
         if (!fetching) {
             fetching = true;
             notificationWS.send(JSON.stringify({
-                'command': 'fetch_notifications',
-                'page': page,
-                'per_page': perPage
+                "command": "fetch_notifications",
+                "page": page,
+                "per_page": perPage
             }));
         }
     }
 
     function markNotificationSeen(id) {
         notificationWS.send(JSON.stringify({
-            'command': 'mark_seen',
-            'id': id
+            "command": "mark_seen",
+            "id": id
         }));
     }
 
@@ -129,7 +129,7 @@ $(document).ready(function () {
         setInterval(() => {
             isNewNotification = true;
             fetchNotifications(1, perPage);
-        }, 2000);
+        }, 3000);
     };
 
     notificationWS.onmessage = function (event) {
@@ -157,12 +157,7 @@ $(document).ready(function () {
     }
 
     function handleScroll() {
-        const $this = $(this);
-        const scrollTop = $this.scrollTop();
-        const scrollHeight = $this[0].scrollHeight;
-        const height = $this.height();
-
-        if (scrollTop + height >= scrollHeight - 50 && !fetching) {
+        if ($(this).scrollTop() + $(this).height() >= $(this)[0].scrollHeight - 10 && !fetching) {
             ++currentPage;
             fetchNotifications(currentPage, perPage);
         }
@@ -171,7 +166,7 @@ $(document).ready(function () {
     $div_notif_ul.on("click", "button#accept-fr-btn, button#reject-fr-btn", function (e) {
         e.preventDefault();
         const id = $(this).closest("li")[0].dataset.id;
-        const command = (this.id === 'accept-fr-btn' ? 'accept_fr' : 'reject_fr');
+        const command = (this.id === "accept-fr-btn" ? "accept_fr" : "reject_fr");
 
         notificationWS.send(JSON.stringify({
             "command": command,

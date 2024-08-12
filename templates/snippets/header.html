@@ -2,12 +2,15 @@
 	.dropdown-toggle::after {
 		display: none;
 	}
+
+	.dropdown-item:active {
+		background-color: var(--bs-body-color);
+	}
 </style>
 <header class="p-3 shadow-lg sticky-top mb-3">
 	<div class="bs5-container-fluid">
-		<div class="row justify-content-between align-items-center">
-			<div
-				class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start mb-md-0 mb-lg-0 mb-3">
+		<div class="row justify-content-center justify-content-md-between justify-content-lg-between">
+			<div class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start mb-md-0 mb-lg-0 mb-3">
 				<a class="fs-4 me-md-5 me-lg-5 mb-md-0 mb-lg-0" href="/">ChatApp</a>
 				<form class="col-8 col-md-6 col-lg-4" autocomplete="off" role="search" method="post">
 					<div class="input-group">
@@ -27,49 +30,32 @@
 				</div>
 				<script>{% include 'snippets/search_user.js' %}</script>
 			</div>
-
-
 			<div
-				class="col-md-4 col-lg-3 col-12 d-flex flex-row justify-content-between align-items-center user-select-none px-3">
-				<button
-					class="btn d-flex align-items-center switch-theme w-50 text-primary justify-content-start justify-content-lg-end justify-content-md-end ps-0">
-					<span class="material-icons me-2"></span>
-					<span class="text-body-secondary fs-6"></span>
-				</button>
-				<script>{% include 'snippets/change_theme.js' %}</script>
+				class="d-flex user-select-none px-3 w-auto">
 				{% if request.user.is_authenticated %}
-				<style>
-				</style>
-				<div id="notifications" class="dropdown text-end">
-					<button type="button" class="btn position-relative align-items-center dropdown-toggle p-1 border-0" data-bs-toggle="dropdown" aria-expanded="false">
+				<div id="notifications" class="dropdown text-end me-5">
+					<button type="button" class="btn position-relative align-items-center dropdown-toggle p-1 border-0"
+						data-bs-toggle="dropdown" aria-expanded="false">
 						<span class="material-icons">notifications</span>
-						<span id="counter" class="position-absolute top-0 start-100 translate-middle text-info border-0 rounded-circle"></span>
+						<span id="counter"
+							class="position-absolute top-0 start-100 translate-middle text-info border-0 rounded-circle"></span>
 					</button>
 					<ul class="dropdown-menu p-0"></ul>
 					<style>
-						div#notifications > ul{
+						div#notifications>ul {
 							max-height: 9rem;
 							min-height: auto;
 							width: 20rem;
 							overflow: scroll;
 						}
-						div#notifications > ul::-webkit-scrollbar{
+
+						div#notifications>ul::-webkit-scrollbar {
 							width: 0.2rem;
-						}
-						@media only screen and (max-width: 576px) {
-							div#notifications > ul {
-								transform: translate(-186px, 41px) !important;
-							}
-						}
-						@media only screen and (max-width: 576px) {
-							div#notifications > ul {
-								transform: translate(-186px, 41px) !important;
-							}
 						}
 					</style>
 					<script>{% include 'snippets/notifications.js' %}</script>
 				</div>
-				<div class="dropdown text-end">
+				<div class="dropdown text-end ms-5">
 					<a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
 						data-bs-toggle="dropdown" aria-expanded="false">
 						<img src="{{request.user.profile_image.url}}" alt="User Profile Image" width="40" height="40"
@@ -79,6 +65,13 @@
 						<li>
 							<a class="dropdown-item"
 								href="{% url 'account:profile' request.user.username %}">Profile</a>
+						</li>
+						<li>
+							<button
+								class="dropdown-item switch-theme btn d-flex align-items-center justify-content-between">
+								<span class="text-body-secondary fs-6"></span>
+								<span class="material-icons me-2"></span>
+							</button>
 						</li>
 						<li>
 							<form class="dropdown-item text-danger" action="{% url 'account:logout' %}" method="post">
@@ -131,6 +124,7 @@
 				</ul>
 			</div>
 			{% endif %}
+			<script>{% include 'snippets/change_theme.js' %}</script>
 		</div>
 	</div>
 </header>

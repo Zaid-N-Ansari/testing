@@ -14,8 +14,8 @@ ALLOWED_HOSTS = []
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend', # Keep the default backend
-    'account.backends.EmailOrUserIdBackend'
+    'django.contrib.auth.backends.ModelBackend',
+    'account.backends.EmailOrUsernameBackend'
 ]
 
 LOGIN_REDIRECT_URL = 'home'

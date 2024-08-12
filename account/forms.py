@@ -16,11 +16,11 @@ class LoginForm(AuthenticationForm):
     class Meta:
         fields = ('username', 'password')
 
-    username = forms.CharField(label='Username / Email / Id')
+    username = forms.CharField(label='Username or Email')
 
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+        self.fields['username'].widget.attrs.update({'class': 'form-control', 'autofocus': 'true'})
         self.fields['password'].widget.attrs.update({'class': 'form-control'})
 
 

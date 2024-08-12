@@ -5,16 +5,16 @@ $(document).ready(function () {
 			$("header").removeClass("bg-white");
 			$("span.badge").addClass("bg-dark");
 			$("span.badge").removeClass("bg-white");
-			$("button.switch-theme").children(0).eq(0).text("dark_mode");
-			$("button.switch-theme").children(0).eq(1).text("Dark");
+			$("button.switch-theme").children(0).eq(0).text("Dark");
+			$("button.switch-theme").children(0).eq(1).text("dark_mode");
 		}
 		else {
 			$("header").addClass("bg-white");
 			$("header").removeClass("bg-dark");
 			$("span.badge").addClass("bg-white");
 			$("span.badge").removeClass("bg-dark");
-			$("button.switch-theme").children(0).eq(0).text("light_mode");
-			$("button.switch-theme").children(0).eq(1).text("Light");
+			$("button.switch-theme").children(0).eq(0).text("Light");
+			$("button.switch-theme").children(0).eq(1).text("light_mode");
 		}
 	}
 
