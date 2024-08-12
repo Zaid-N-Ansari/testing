@@ -1,5 +1,6 @@
 static_cdn/*
 /.venv
+db.sqlite3
 
 */migrations/*
 !*/migrations/__init__.py
@@ -8,7 +9,7 @@ static_cdn/*
 gitacp.bat
 
 temp/*
-db.sqlite3
+
 media_cdn/ProfileImage/*
 
 __pycache__/
