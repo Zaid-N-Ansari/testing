@@ -181,7 +181,6 @@ $(document).ready(function () {
     });
 
     $div_notif_ul.on("click", "li", function () {
-        event.stopPropagation();
         const $this = $(this);
         const id = $this[0].dataset.id;
 
