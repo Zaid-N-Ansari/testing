@@ -132,7 +132,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
 
         self.process_and_save_image(temp_url, x, y, s, user)
 
-    def process_and_save_image(self, img_path, x, y, size, user:UserAccount):
+    def process_and_save_image(self, img_path, x, y, size, user):
         with Image.open(img_path) as img:
             crop_img = img.crop((x, y, x + size, y + size))
             crop_img.save(img_path)
