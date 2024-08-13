@@ -1,6 +1,6 @@
 from PIL import Image
 from os.path import join, exists
-from os import mkdir
+from os import mkdir, remove
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse_lazy, reverse
 from django.views import View
@@ -12,7 +12,6 @@ from django.http import Http404, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from base64 import b64decode
 from django.core.files import File
-import shutil
 from django.contrib.auth.views import (
 	LoginView,
     LogoutView,
@@ -132,19 +131,18 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         temp_url = self.save_tmp_img(img_str, user)
 
         self.process_and_save_image(temp_url, x, y, s, user)
-        self.remove_directory(f'temp/{user.pk}')
 
-    def process_and_save_image(self, img_path, x, y, size, user):
+    def process_and_save_image(self, img_path, x, y, size, user:UserAccount):
         with Image.open(img_path) as img:
             crop_img = img.crop((x, y, x + size, y + size))
             crop_img.save(img_path)
 
-        if user.profile_image:
+        if user.profile_image.name.split('/')[2] != 'defaultpfi.jpg':
             user.profile_image.delete()
 
-        user.profile_image.save('profile_image.png', File(open(img_path, 'rb')), save=False)
+        user.profile_image.save('profile_image.png', File(open(img_path, 'rb')), save=True)
 
-        user.save()
+        self.remove_temp_file(img_path)
 
     def save_tmp_img(self, img_str, user):
         dir_path = f'temp/{user.pk}'
@@ -163,11 +161,12 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
 
         return url
 
-    def remove_directory(self, path):
+    def remove_temp_file(self, file_path):
         try:
-            shutil.rmtree(path)
+            if exists(file_path):
+                remove(file_path)
         except Exception as e:
-            print(f"Error removing directory {path}: {e}")
+            print(f"Error removing file {file_path}: {e}")
 
 
 class SearchView(View):

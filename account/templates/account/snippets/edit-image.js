@@ -2,7 +2,7 @@ $(document).ready(function () {
 	$("div.edit")
 	.on("mouseenter", function () {
 		$(this).children("img.img_edit").css({
-			"opacity": "0.8",
+			"opacity": "0.6",
 			"transition": "opacity 200ms ease"
 		});
 		$(this).children("span.span_edit").css({
