@@ -139,8 +139,10 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
             crop_img = img.crop((x, y, x + size, y + size))
             crop_img.save(img_path)
 
-        with open(img_path, 'rb') as f:
-            user.profile_image.save('profile_image.png', File(f))
+        if user.profile_image:
+            user.profile_image.delete()
+
+        user.profile_image.save('profile_image.png', File(open(img_path, 'rb')), save=False)
 
         user.save()
 
