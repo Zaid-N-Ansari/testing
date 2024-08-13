@@ -1,5 +1,3 @@
-from typing import Any
-from django.conf import settings
 from .models import UserAccount
 from django import forms
 from django.core.exceptions import ValidationError
@@ -21,7 +19,7 @@ class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({'class': 'form-control', 'autofocus': 'true'})
-        self.fields['password'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password'].widget.attrs.update({'class': 'form-control pe-5'})
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -44,8 +42,8 @@ class CustomUserCreationForm(UserCreationForm):
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'username': forms.TextInput(attrs={'class': 'form-control', 'autofocus':'false'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
-            'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'password1': forms.PasswordInput(attrs={'class': 'form-control pe-5'}),
+            'password2': forms.PasswordInput(attrs={'class': 'form-control pe-5'}),
         }
     
 

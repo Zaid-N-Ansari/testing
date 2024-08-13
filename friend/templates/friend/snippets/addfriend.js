@@ -5,7 +5,7 @@ $(document).ready(function() {
 			"csrfmiddlewaretoken": "{{ csrf_token }}",
 			"friend": friend
 		}
-        $.post("{% url 'friend:accept' %}", req, function({result, message}) {
+        $.post("{% url 'friend:addfriend' %}", req, function({result, message}) {
             if (result === "success") {
                 window.location.reload(true);
             } else {

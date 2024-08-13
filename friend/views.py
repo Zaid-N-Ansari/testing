@@ -28,13 +28,7 @@ class AddFriend(View):
             from_user = UserAccount.objects.get(username=request.user)
             to_user = UserAccount.objects.get(username=user)
 
-            friend_instance = Friend.objects.get_or_create(user=from_user)[0]
-            friend_instance.add_friend(to_user)
-            friend_instance.save()
-
-            friend_instance = Friend.objects.get_or_create(user=to_user)[0]
-            friend_instance.add_friend(from_user)
-            friend_instance.save()
+            FriendRequest.objects.get_or_create(from_user=from_user, to_user=to_user)
 
         except Exception as e:
             return JsonResponse({'result': 'An Unexpected Error has Occured'})

@@ -9,7 +9,7 @@ $(document).ready(function () {
     const existingIds = new Set();
     let isNewNotification = false;
 
-    function makeNewLiElm(id, type, from_user, created_at, action, count, seen) {
+    function makeNewLiElm(id, type, from_user, created_at, action, seen) {
         const seenClass = (seen === "True" ? "seen" : "unseen");
 
         const li = document.createElement("li");
@@ -82,6 +82,7 @@ $(document).ready(function () {
         if (Array.isArray(notifications)) {
             notifications.forEach(notification => {
                 const { id, type, from_user, created_at, action, count, seen } = notification;
+                $("span#counter").text(count);
 
                 if (existingIds.has(id)) {
                     if (type === "regular_notification") {
@@ -93,7 +94,7 @@ $(document).ready(function () {
                         .removeClass(`text-${seen === "False" ? "success" : "danger"}`)
                         .addClass(`text-${seen === "False" ? "danger" : "success"}`);
                 } else {
-                    const newNotification = makeNewLiElm(id, type, from_user, created_at, action, count, seen);
+                    const newNotification = makeNewLiElm(id, type, from_user, created_at, action, seen);
 
                     if (isNew) {
                         $div_notif_ul[0].insertBefore(newNotification, $div_notif_ul[0].firstChild);

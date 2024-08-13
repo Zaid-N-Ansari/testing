@@ -24,9 +24,9 @@
 				{% if form.username.errors %}
 				<div class="alert alert-danger alert-dismissible fade show ps-2 p-0 d-flex flex-row align-items-center justify-content-between" role="alert">
 					<div>
-					{% for error in form.username.errors %}
-					<p class="mb-0">{{ error }}</p>
-					{% endfor %}
+						{% for error in form.username.errors %}
+						<p class="mb-0">{{ error }}</p>
+						{% endfor %}
 					</div>
 					<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger" data-dismiss="alert" aria-label="Close">&times;</button>
 				</div>
@@ -39,43 +39,45 @@
 				{% if form.email.errors %}
 				<div class="alert alert-danger alert-dismissible fade show ps-2 p-0 d-flex flex-row align-items-center justify-content-between" role="alert">
 					<div>
-					{% for error in form.email.errors %}
-					<p class="mb-0">{{ error }}</p>
-					{% endfor %}
+						{% for error in form.email.errors %}
+						<p class="mb-0">{{ error }}</p>
+						{% endfor %}
 					</div>
 					<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger" data-dismiss="alert" aria-label="Close">&times;</button>
 				</div>
 				{% endif %}
 			</div>
 
-			<div class="form-group mb-4">
+			<div class="form-group mb-4 position-relative">
 				{{ form.password1.label_tag }}
 				{{ form.password1 }}
 				{% if form.password1.errors %}
 				<div class="alert alert-danger alert-dismissible fade show ps-2 p-0 d-flex flex-row align-items-center justify-content-between" role="alert">
 					<div>
-					{% for error in form.password1.errors %}
-					<p class="mb-0">{{ error }}</p>
-					{% endfor %}
+						{% for error in form.password1.errors %}
+						<p class="mb-0">{{ error }}</p>
+						{% endfor %}
 					</div>
 					<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger" data-dismiss="alert" aria-label="Close">&times;</button>
 				</div>
 				{% endif %}
+				<span id="toggle-password" class="material-icons position-absolute end-0 top-50 me-2 user-select-none" style="display: none; cursor: pointer;">visibility</span>
 			</div>
 
-			<div class="form-group mb-4">
+			<div class="form-group mb-4 position-relative">
 				{{ form.password2.label_tag }}
 				{{ form.password2 }}
 				{% if form.password2.errors %}
 				<div class="alert alert-danger alert-dismissible fade show ps-2 p-0 d-flex flex-row align-items-center justify-content-between" role="alert">
 					<div>
-					{% for error in form.password2.errors %}
-					<p class="mb-0">{{ error }}</p>
-					{% endfor %}
+						{% for error in form.password2.errors %}
+						<p class="mb-0">{{ error }}</p>
+						{% endfor %}
 					</div>
 					<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger" data-dismiss="alert" aria-label="Close">&times;</button>
 				</div>
 				{% endif %}
+				<span id="toggle-password" class="material-icons position-absolute end-0 top-50 me-2 user-select-none" style="display: none; cursor: pointer;">visibility</span>
 			</div>
 
 			<button type="submit" class="btn btn-sm btn-primary float-end">Register</button>
@@ -91,5 +93,5 @@
 		</form>
 	</div>
 </div>
-
+<script>{% include 'snippets/toggle_password.js' %}</script>
 {% endblock content %}

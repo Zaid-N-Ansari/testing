@@ -1,15 +1,15 @@
 $(document).ready(function () {
 	let currentPage = 1;
-	const itemsPerPage = 2;
+	const itemsPerPage = 3;
 
 	$("input#user_search").parent().children().children().on("click", function () {
 		if ($("input#user_search").val() !== "") {
-			$("div#search_result").parent().removeClass("d-none");
+			$("ul#search_result").parent().removeClass("d-none");
 			searchUsers(currentPage);
 		} else {
-			$("div#search_result").empty();
+			$("ul#search_result").empty();
 			$("#pagination_controls").empty();
-			$("div#search_result").parent()[0].addClass("d-flex");
+			$("ul#search_result").parent()[0].addClass("d-flex");
 		}
 	});
 
@@ -23,7 +23,7 @@ $(document).ready(function () {
 			$(this).select();
 		} else if (e.type === "keyup" || e.type === "change") {
 			if ($(this).val() === "") {
-				$("div#search_result").empty();
+				$("ul#search_result").empty();
 				$("#pagination_controls").empty();
 			}
 		}
@@ -45,21 +45,22 @@ $(document).ready(function () {
 	}
 
 	function showSearchResult(res) {
-		$("div#search_result").empty().append(`<div class="list-group"></div>`);
-		$("div#search_result").css("width", "-webkit-fill-available");
-		$("div#search_result > div.list-group").empty();
+		$("ul#search_result").css("width", "-webkit-fill-available");
+		$("ul#search_result").empty();
 		if (res.result !== null) {
 			Object.entries(res.result).forEach(([key, user]) => {
-				$("div#search_result > div.list-group").append(
-					`<a href="/account/profile/${user.username}" class="list-group-item list-group-item-action d-flex flex-row align-items-center justify-content-between" target="_blank">
-                        ${user.username}
-                        <img src="${user.profile_image}" loading="lazy" style="width: 5vw;" />
-                    </a>`
+				$("ul#search_result").append(
+					`<li class="list-group-item list-group-item-action">
+						<a href="/account/profile/${user.username}" class="d-flex flex-row align-items-center justify-content-between" target="_blank">
+							${user.username}
+							<img src="${user.profile_image}" loading="lazy" style="width: 5vw;" />
+						</a>
+					</li>`
 				);
 			});
 		} else {
-			$("div#search_result > div.list-group").append(
-				`<button class="btn list-group-item list-group-item-action text-center">No User Found</button>`
+			$("ul#search_result").append(
+				`<li class="btn list-group-item list-group-item-action text-center">No User Found</li>`
 			);
 		}
 	}

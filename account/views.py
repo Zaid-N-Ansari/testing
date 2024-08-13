@@ -8,14 +8,11 @@ from django.views.generic.edit import FormView, UpdateView
 from django.views.generic import DetailView
 from django.shortcuts import redirect, render
 from django.db.models import Q
-from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
+from django.http import Http404, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
-from asgiref.sync import sync_to_async
-from django.core.files.storage import FileSystemStorage
 from base64 import b64decode
 from django.core.files import File
 import shutil
-from concurrent.futures import ThreadPoolExecutor
 from django.contrib.auth.views import (
 	LoginView,
     LogoutView,
@@ -105,6 +102,7 @@ class CustomPasswordChangeDoneView(LoginRequiredMixin, PasswordChangeDoneView):
     def dispatch(self, request, *args, **kwargs):
         return CustomLogoutView.as_view()(request)
 
+
 class ProfileEditView(LoginRequiredMixin, UpdateView):
     def get(self, request, *args, **kwargs):
         form = UserUpdateForm(instance=request.user)
@@ -169,50 +167,41 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         except Exception as e:
             print(f"Error removing directory {path}: {e}")
 
-            
+
 class SearchView(View):
     http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
         user = request.POST.get('user')
-        page_number = request.POST.get('page', 1)  # Get the requested page number, default to 1
-        items_per_page = request.POST.get('items_per_page', 10)  # Number of items per page
+        page_number = request.POST.get('page', 1)
+        items_per_page = request.POST.get('items_per_page', 10)
 
         try:
-            # Fields to return
             fields = ['username', 'first_name', 'last_name', 'profile_image']
 
-            # Query the database
             result = UserAccount.objects.filter(
                 Q(username__icontains=user) |
                 Q(email__icontains=user) |
                 Q(first_name__icontains=user) |
                 Q(last_name__icontains=user)
-            ).order_by('last_name').values_list('username', 'first_name', 'last_name', 'profile_image')
+            ).exclude(username=request.user).order_by('last_name').values_list('username', 'first_name', 'last_name', 'profile_image')
 
-            # Create a Paginator object
             paginator = Paginator(result, items_per_page)
 
             try:
-                # Get the requested page
                 page_obj = paginator.page(page_number)
             except PageNotAnInteger:
-                # If page is not an integer, deliver the first page
                 page_obj = paginator.page(1)
             except EmptyPage:
-                # If page is out of range, deliver the last page of results
                 page_obj = paginator.page(paginator.num_pages)
 
-            # Prepare the paginated results
             result = list(page_obj)
             result = [dict(zip(fields, values)) for values in result]
             result = {'user'+str(cnt): d for cnt, d in enumerate(result)}
 
-            # Update the profile_image paths
             for _, __ in result.items():
                 __['profile_image'] = '/media/' + __['profile_image']
 
-            # Include pagination metadata
             response_data = {
                 'result': result if result else None,
                 'pagination': {
