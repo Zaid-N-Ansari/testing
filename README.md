@@ -42,7 +42,7 @@ Before you begin, ensure you have met the following requirements:
 	</li>
 	<li>
 		<p>
-			After successful database model creation and migration, create a superuser to oversee the management of the database, and <b>admin</b> if you may: <code>python manage.py createsuperuser</code><br />
+			After successful database model creation and migration, create a superuser to oversee the management of the database, an <b>admin</b> if you may: <code>python manage.py createsuperuser</code><br />
 			Fill in the details and remember the username and password you put in, if incase you aren't able to remember the password then run <code>python manage.py changepassword your.user.name</code>
 		</p>
 	</li>

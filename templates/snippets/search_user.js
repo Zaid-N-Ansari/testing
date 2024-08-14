@@ -47,13 +47,13 @@ $(document).ready(function () {
 	function showSearchResult(res) {
 		$("ul#search_result").css("width", "-webkit-fill-available");
 		$("ul#search_result").empty();
-		if (res.result !== null) {
+		if (res.result) {
 			Object.entries(res.result).forEach(([key, user]) => {
 				$("ul#search_result").append(
 					`<li class="list-group-item list-group-item-action">
 						<a href="/account/profile/${user.username}" class="d-flex flex-row align-items-center justify-content-between" target="_blank">
 							${user.username}
-							<img src="${user.profile_image}" loading="lazy" style="width: 5vw;" />
+							<img src="${user.profile_image}" loading="lazy" style="width: 3rem;" />
 						</a>
 					</li>`
 				);
