@@ -9,6 +9,11 @@ $(document).ready(function () {
     const existingIds = new Set();
     let isNewNotification = false;
 
+    if (window.screen.width <= 932) {
+        $("button#notif-btn").dropdown({ offset: "-85px" });
+    }
+
+
     function makeNewLiElm(id, type, from_user, created_at, action, seen) {
         const seenClass = (seen === "True" ? "seen" : "unseen");
 
@@ -126,6 +131,7 @@ $(document).ready(function () {
     }
 
     notificationWS.onopen = function () {
+		console.log("notificationWS OPENED");
         fetchNotifications(currentPage, perPage);
         setInterval(() => {
             isNewNotification = true;
@@ -136,14 +142,16 @@ $(document).ready(function () {
     notificationWS.onmessage = function (event) {
         const data = JSON.parse(event.data);
 
-        if (data.notifications !== undefined) {
+        if (data.notifications) {
             renderNotifications(data.notifications, isNewNotification);
             updatePagination(data.pagination);
             isNewNotification = false;
         }
-
         if (data.status === "success" && data.notification) {
             renderNotifications(data.notification, true);
+        }
+        if (!$div_notif_ul.children().length) {
+            $div_notif_ul.append(`<li><span class="dropdown-item">No Notification Yet</span></li>`)
         }
 
         fetching = false;

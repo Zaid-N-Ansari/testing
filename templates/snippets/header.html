@@ -38,7 +38,7 @@
 				class="d-flex user-select-none px-3 w-auto align-items-center">
 				{% if request.user.is_authenticated %}
 				<div id="notifications" class="dropdown text-end me-5">
-					<button type="button" class="btn position-relative align-items-center dropdown-toggle p-1 border-0"
+					<button type="button" id="notif-btn" class="btn position-relative align-items-center dropdown-toggle p-1 border-0"
 						data-bs-toggle="dropdown" aria-expanded="false">
 						<span class="material-icons">notifications</span>
 						<span id="counter"
@@ -49,8 +49,8 @@
 						div#notifications>ul {
 							max-height: 9rem;
 							min-height: auto;
-							width: 20rem;
 							overflow: scroll;
+							width: max-content;
 						}
 
 						div#notifications>ul::-webkit-scrollbar {

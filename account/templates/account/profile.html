@@ -65,8 +65,8 @@ Profile
 						<span class="material-icons">person_remove</span>
 					</button>
 					<script>{% include 'friend/snippets/unfriend.js' %}</script>
-					<button class="btn text-info" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Chat">
-						<span class="material-icons">chat</span>
+					<button class="btn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Chat">
+						<a href="{% url 'chat:chat' user.username %}"><span class="material-icons text-info">chat</span></a>
 					</button>
 					{% else %}
 						{% if fr_from_you %}

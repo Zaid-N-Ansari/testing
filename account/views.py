@@ -36,7 +36,7 @@ from .forms import (
 
 class AsyncLoginRequiredMixin(View):
     async def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
+        if not sync_to_async(lambda: request.user.is_authenticated)():
             return redirect('account:login')
         return await super().dispatch(request, *args, **kwargs)
 
@@ -128,7 +128,7 @@ class ProfileEditView(AsyncLoginRequiredMixin, View):
             except Exception as e:
                 print(f"Image processing error: {e}")
 
-        if form.is_valid():
+        if await sync_to_async(form.is_valid)():
             await sync_to_async(form.save)()
             return redirect(reverse('account:profile', kwargs={'username': user.username}))
 

@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.crypto import get_random_string
-from django.core.files.storage import default_storage
 
 class UserAccountManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
