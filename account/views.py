@@ -10,7 +10,7 @@ from django.shortcuts import redirect, render
 from django.db.models import Q
 from django.http import Http404, JsonResponse
 from asgiref.sync import sync_to_async
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from base64 import b64decode
 from django.core.files import File
 from django.contrib.auth.views import (
@@ -33,11 +33,10 @@ from .forms import (
     UserUpdateForm
 )
 
-
-class AsyncLoginRequiredMixin(View):
+class AsyncLoginRequiredMixin(AccessMixin):
     async def dispatch(self, request, *args, **kwargs):
-        if not sync_to_async(lambda: request.user.is_authenticated)():
-            return redirect('account:login')
+        if not await sync_to_async(lambda: request.user.is_authenticated)():
+            return super().handle_no_permission()
         return await super().dispatch(request, *args, **kwargs)
 
 

@@ -21,16 +21,16 @@
 	<div class="row justify-content-center">
 		<div class="col-12 col-md-12 col-lg-8">
 			<div class="card h-80 shadow">
-				<h5 class="card-header">
-					<img src="{{ to.profile_image.url }}" alt="User Profile Image" class="rounded-circle" style="width: 4rem;">
-					<span class="h-100">{{ to }}</span>
+				<h5 class="card-header d-flex align-items-center justify-content-between user-select-none">
+					<span>{{ to }}</span>
+					<span data-toggle="tooltip" data-placement="left" title="Connecting..." class="material-icons" style="font-size: 1rem; cursor:default;">radio_button_checked</span>
 				</h5>
 				<div class="card-body user-select-none">
 
 					<!-- msgs to be displayed here -->
 
 				</div>
-				<div class="d-flex align-items-between w-100 m-auto py-2 border-top">
+				<div class="d-flex align-items-between w-100 m-auto py-2 border-top" style="background-color: var(--bs-card-cap-bg);">
 					<div class="w-75 d-flex align-items-center justify-content-evenly">
 						<button class="btn" type="button">
 							<span class="material-icons">attach_file</span>

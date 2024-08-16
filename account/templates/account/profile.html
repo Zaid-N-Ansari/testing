@@ -25,8 +25,7 @@ Profile
 						<span class="tex-center">{{ user }}</span>
 						{% if user.id == request.user.id %}
 						<a href="{% url 'account:edit' request.user %}" class="float-end position-absolute top-0 end-0">
-							<span class="material-icons" data-bs-toggle="tooltip" data-bs-placement="top"
-								title="Edit Profile">settings</span>
+							<span class="material-icons" data-toggle="tooltip" data-placement="left" title="Edit Profile">settings</span>
 						</a>
 						{% endif %}
 					</p>
@@ -49,8 +48,7 @@ Profile
 				<div class="form-group mt-3">
 					<a href="{% url 'friend:all' %}" class="float-start">
 						<button type="button" class="btn btn-primary position-relative">My Friends
-							<span
-								class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-primary" style="background-color: var(--bs-body-bg);">{{friends_count}}</span>
+							<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-primary" style="background-color: var(--bs-body-bg);">{{friends_count}}</span>
 						</button>
 					</a>
 					<a href="{% url 'account:password_change' %}" class="float-end">

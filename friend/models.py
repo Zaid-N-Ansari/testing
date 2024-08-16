@@ -1,7 +1,6 @@
 from django.db import models
 from asgiref.sync import sync_to_async
 from django.conf import settings
-
 from account.models import UserAccount
 
 class Friend(models.Model):
@@ -13,7 +12,7 @@ class Friend(models.Model):
 		)
 
 	friends = models.ManyToManyField(
-		settings.AUTH_USER_MODEL,
+		UserAccount,
 		blank=True,
 		related_name='friend',
 	)
@@ -38,12 +37,12 @@ class Friend(models.Model):
 
 class FriendRequest(models.Model):
     from_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        UserAccount,
         related_name='req_from_user',
         on_delete=models.CASCADE,
     )
     to_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        UserAccount,
         related_name='req_to_user',
         on_delete=models.CASCADE,
     )

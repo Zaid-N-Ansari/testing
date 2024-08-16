@@ -29,16 +29,20 @@ class ChatRoom(models.Model):
 		crp = await sync_to_async(lambda: self.participants)()
 		return await sync_to_async(lambda: list(crp.all().values_list('username', flat=True)))(), crp
 
-	async def add_user(self, user):
+	async def is_online(self, user):
 		participants, crp = await self.get_participants()
-		if user not in participants:
+		return user.username in participants, crp
+
+	async def add_user(self, user):
+		is_in, crp = await self.is_online(user)
+		if not is_in:
 			await crp.aadd(user)
 			return True
 		return False
 
 	async def remove_user(self, user):
-		participants, crp = await self.get_participants()
-		if user in participants:
+		is_in, crp = await self.is_online(user)
+		if is_in:
 			await crp.aremove(user)
 			return True
 		return False
@@ -58,7 +62,7 @@ class Message(models.Model):
 		on_delete=models.CASCADE
 	)
 
-	content = models.TextField(max_length=550, blank=True, null=True, help_text='message')
+	content = models.TextField(max_length=550)
 
 	created_at = models.DateTimeField(auto_now_add=True)
 

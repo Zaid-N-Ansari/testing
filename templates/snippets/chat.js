@@ -23,7 +23,7 @@ $(document).ready(function () {
 	$("button#send-msg-btn").on("click", function () {
 		if (chatWS.OPEN) {
 			chatWS.send(JSON.stringify({
-				"command": "send",
+				"command": "send_message",
 				"message": textMsg.val()
 			}));
 		}
