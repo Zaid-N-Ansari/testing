@@ -1,5 +1,3 @@
-from itertools import pairwise
-from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from .models import ChatRoom
@@ -23,8 +21,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-        await self.send_update(room)
 
+        await self.broadcast_participants(room)
+
+    async def broadcast_participants(self, room):
+        participants, _ = await room.get_participants()
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'update.participants',
+                'participants_count': len(participants)
+            }
+        )
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -40,32 +48,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-
     async def send_message(self, event):
         message = event['message']
         await self.send(text_data=json.dumps(
-            {'message': message,}
-		))
+            {'message': message}
+        ))
 
-
-    async def send_update(self, room):
-        participants, _ = await room.get_participants()
-        participants = [_ for _ in participants if _ != self.user.username]
-        if len(participants) > 0:
-            await self.send(text_data=json.dumps({
-                'type': 'status_update',
-                'message': f'{participants}'
-            }))
+    async def update_participants(self, event):
+        participants_count = event['participants_count']
+        if participants_count > 1:
+            message = "Another user is in the room"
         else:
-            await self.send(text_data=json.dumps({
-                'type': 'status_update',
-                'message': 'You are alone in the chat room'
-            }))
+            message = "You are alone in the chat room"
 
-
+        await self.send(text_data=json.dumps({
+            'type': 'status_update',
+            'participants_count': participants_count,
+            'message': message
+        }))
 
     async def disconnect(self, close_code):
         room = await ChatRoom.objects.filter(name=self.room_name).afirst()
         await room.remove_user(self.user)
-        await self.send_update(room)
+        await self.broadcast_participants(room)
         print(f'\n{self.user} disconnected : chat WS')

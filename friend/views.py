@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from asgiref.sync import sync_to_async
 from django.views import View
 from django.views.generic.detail import DetailView
 from account.models import UserAccount
@@ -38,25 +39,27 @@ class AddFriend(View):
 
 class Unfriend(View):
     http_method_names = ['post']
-    def post(self, request, *args, **kwargs):
+    async def post(self, request, *args, **kwargs):
         user = request.POST.get('friend')
         try:
-            from_user = UserAccount.objects.get(username=request.user)
-            to_user = UserAccount.objects.get(username=user)
+            from_user = await UserAccount.objects.aget(username=request.user)
+            to_user = await UserAccount.objects.aget(username=user)
 
-            friend_instance = Friend.objects.get_or_create(user=from_user)[0]
-            friend_instance.remove_friend(to_user)
-            friend_instance.save()
+            friend_instance = await Friend.objects.aget_or_create(user=from_user)
+            friend_instance = friend_instance[0]
+            await friend_instance.remove_friend(to_user)
 
-            friend_instance = Friend.objects.get_or_create(user=to_user)[0]
-            friend_instance.remove_friend(from_user)
-            friend_instance.save()
+            friend_instance = await Friend.objects.aget_or_create(user=to_user)
+            friend_instance = friend_instance[0]
+            await friend_instance.remove_friend(from_user)
 
         except Exception as e:
-            return JsonResponse({'result': 'An Unexpected Error has Occured'})
+            print(e)
+            return JsonResponse({'result': 'An Unexpected Error has Occurred'})
 
         else:
             return JsonResponse({'result': 'success'})
+
 
 class CancelFriendRequest(View):
     http_method_names = ['post']
