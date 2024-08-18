@@ -44,15 +44,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     self.room_group_name,
                     {
                         'type': 'send.message',
-                        'message': data['message']
+                        'message': data['message'],
+                        'from_user': self.user.username
                     }
                 )
 
     async def send_message(self, event):
         message = event['message']
-        await self.send(text_data=json.dumps(
-            {'message': message}
-        ))
+        from_user = event['from_user']
+        await self.send(text_data=json.dumps({
+            'type': 'incoming',
+            'message': message,
+            'from_user': from_user
+        }))
 
     async def update_participants(self, event):
         participants_count = event['participants_count']

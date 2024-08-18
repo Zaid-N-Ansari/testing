@@ -5,6 +5,8 @@ $(document).ready(function () {
     const cardBodyButton = $("div.card > div.card-body > button");
     let chatWS;
 
+    cardBody.scrollTop(cardBody[0].scrollHeight);
+
     cardHeader.text("Welcome to ChatApp, Happy Chatting...");
     cardTools.removeClass("d-flex").addClass("d-none");
 
@@ -77,8 +79,10 @@ $(document).ready(function () {
                 }
             }
 
-            if (data.message) {
-                console.log(data.message);
+            if (data.type === "incoming") {
+                cardBody.append(`
+                    <div class="bubble ${data.from_user==="{{request.user}}"?"right":"left"}">${data.message}</div>
+                `);
             }
         };
 
