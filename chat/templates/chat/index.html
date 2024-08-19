@@ -2,6 +2,38 @@
 {% block title %}Chat{% endblock title %}
 
 {% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.2/markdown-it.min.js"
+	integrity="sha512-ohlWmsCxOu0bph1om5eDL0jm/83eH09fvqLDhiEdiqfDeJbEvz4FSbeY0gLJSVJwQAp0laRhTXbUQG+ZUuifUQ=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/default.min.css"
+	integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/highlight.min.js"
+	integrity="sha512-6yoqbrcLAHDWAdQmiRlHG4+m0g/CT/V9AGyxabG8j7Jk8j3r3K6due7oqpiRMZqcYe9WM2gPcaNNxnl2ux+3tA=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/c.min.js"
+	integrity="sha512-Ny9z3+WJkmC2xW098BNYhPajzsf8iBika/+58Mh4lHCF/it92UR32xhytP4I/yxKmF1fkcEgIF87qbGyz1nmDQ=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/java.min.js"
+	integrity="sha512-Agg+F7FqZxvnzs6U4mjOfn7UrM1yy/acUfaXhWCqzLpKq08LT10aT7k04a2RfaqQE2V26SbtSce6yxFzYayegw=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/javascript.min.js"
+	integrity="sha512-XrpvbK+zc0wErJG1VptH0H4w4zyiniHOBR35DJ1VISA+cqYxhksvqFwZk0M8lX9ylaIjTXoMYolOPb93zdrGpg=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/css.min.js"
+	integrity="sha512-fpDUuCO8gpUPZ7TzS3mjJsopogeCbFf94kXHQNzOdEQXksHWOiOHaynatkhBRQraX1GMVtLlU5Z/8NWuK8TLLw=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/python.min.js"
+	integrity="sha512-Q4s1KlNQrISoyXajz4f6ueVt5h4BPLEkAQ10SjTktC/G5cgEuGbfPLFx/1Q2VsK0cZ146upkwvAjfVLVa4EStQ=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-dark.min.css"
+	integrity="sha512-Jk4AqjWsdSzSWCSuQTfYRIF84Rq/eV0G2+tu07byYwHcbTGfdmLrHjUSwvzp5HvbiqK4ibmNwdcG49Y5RGYPTg=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/php.min.js"
+	integrity="sha512-Gde2hoEUx5qPs6AgZnAU4U9t+T93OyFaTL0xBrMflHP2nU7jOpUtaYQ5l32YGLgnwOKPkl7S8YTM2FHMRWmebg=="
+	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script></script>
+
 <style>
 	textarea {
 		outline: none;
@@ -28,6 +60,10 @@
 		mask: radial-gradient(100% 100% at var(--_p) 100%, #0000 99%, #000 102%) var(--_p) 0%/var(--t) var(--t) no-repeat, linear-gradient(#000 0 0) padding-box;
 		background-color: var(--bs-border-color);
 		margin: 0px 0px 10px 0px;
+	}
+
+	.bubble * {
+		margin: 0px 0px 0px 0px;
 	}
 
 	.left {
@@ -62,10 +98,10 @@
 					style="overflow: scroll;">
 					{% for friend in friends %}
 					<button data-id="{{ friend }}"
-						class="list-group-item list-group-item-action d-flex flex-column flex-md-row flex-lg-row align-items-start justify-content-between border p-2 rounded mt-2 w-100 ms-1 me-1 ms-md-0 me-md-0 ms-lg-0 me-lg-0">
-						<img style="width: 3rem;" src="{{ friend.profile_image.url }}" class="rounded-circle"
+						class="list-group-item list-group-item-action d-flex flex-column flex-md-row flex-lg-row align-items-start justify-content-between border p-2 rounded mt-2 ms-1 me-1 ms-md-0 me-md-0 ms-lg-0 me-lg-0" style="width: fit-content; max-width: 8rem; overflow-wrap: anywhere;">
+						<img style="width: 2.5rem;" src="{{ friend.profile_image.url }}" class="rounded-circle"
 							loading="lazy" />
-						<p class="lead small m-0">{{ friend }}</p>
+						<p class="lead small m-0" style="line-height: 1.25rem;">{{ friend }}</p>
 					</button>
 					{% endfor%}
 				</div>
@@ -77,21 +113,10 @@
 			<div class="card h-custom shadow m-0">
 				<h5 class="card-header d-flex align-items-center justify-content-between user-select-none">
 					<span>{{ to }}</span>
-					<span data-toggle="tooltip" data-placement="left" title="Connecting..." class="material-icons"
+					<span data-toggle="tooltip" data-placement="top" title="Connecting..." class="material-icons"
 						style="font-size: 1rem; cursor:default;">radio_button_checked</span>
 				</h5>
-				<div class="card-body user-select-none" style="overflow: scroll;">
-					<div class="bubble left">Bro ipsum dolor sit amet gaper backside single track, manny Bike epic
-						clipless. Schraeder drop gondy, rail fatty slash gear jammer steepsBro ipsum dolor sit amet gaper backside single track, manny Bike epic
-						clipless. Schraeder drop gondy, rail fatty slash gear jammer steepsBro ipsum dolor sit amet gaper backside single track, manny Bike epic
-						clipless. Schraeder drop gondy, rail fatty slash gear jammer steepsBro ipsum dolor sit amet gaper backside single track, manny Bike epic
-						clipless. Schraeder drop gondy, rail fatty slash gear jammer steepsBro ipsum dolor sit amet gaper backside single track, manny Bike epic
-						clipless. Schraeder drop gondy, rail fatty slash gear jammer steepsBro ipsum dolor sit amet gaper backside single track, manny Bike epic
-						clipless. Schraeder drop gondy, rail fatty slash gear jammer steeps</div>
-					<div class="bubble right">Ok, Thank you</div>
-					<div class="bubble left"> ut labore et dolore magna </div>
-					<div class="bubble right">👌</div>
-				</div>
+				<div class="card-body" style="overflow: scroll;"></div>
 				<div class="d-flex align-items-between w-100 m-auto py-2 border-top card-tools"
 					style="background-color: var(--bs-card-cap-bg);">
 					<div class="w-75 d-flex align-items-center justify-content-evenly">
@@ -104,7 +129,7 @@
 						<button class="btn" type="button">
 							<span class="material-icons">add_reaction</span>
 						</button>
-						<button id="send-msg-btn" class="btn" type="button">
+						<button id="send-msg-btn" class="btn" type="button" data-toggle="tooltip" data-placement="top" title="Send Message (Shift + Enter)">
 							<span class="material-icons">send</span>
 						</button>
 					</div>

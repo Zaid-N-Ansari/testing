@@ -30,7 +30,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'update.participants',
-                'participants_count': len(participants)
+                'participants': participants
             }
         )
 
@@ -40,14 +40,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         match command:
             case 'send_message':
+                message = data.get('message')
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         'type': 'send.message',
-                        'message': data['message'],
+                        'message': message,
                         'from_user': self.user.username
                     }
                 )
+            case 'typing':
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'user.typing',
+                        'from_user': self.user.username
+                    }
+                )
+
 
     async def send_message(self, event):
         message = event['message']
@@ -58,16 +68,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'from_user': from_user
         }))
 
+    async def user_typing(self, event):
+        from_user = event['from_user']
+        await self.send(text_data=json.dumps({
+            'type': 'typing',
+            'from_user': from_user
+        }))
+
     async def update_participants(self, event):
-        participants_count = event['participants_count']
-        if participants_count > 1:
-            message = "Another user is in the room"
+        participants = event['participants']
+        if len(participants) > 1:
+            message = f'{', '.join(participants)} Joined'
         else:
-            message = "You are alone in the chat room"
+            message = 'Only You are in the Chat Room'
 
         await self.send(text_data=json.dumps({
             'type': 'status_update',
-            'participants_count': participants_count,
+            'participants': participants,
             'message': message
         }))
 
