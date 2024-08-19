@@ -48,7 +48,23 @@ $(document).ready(function () {
             cardBody.empty();
             cardHeader.append(`
                 <span>${to}</span>
-                <span data-toggle="tooltip" data-placement="left" title="Connecting..." class="material-icons status-icon" style="font-size: 1rem; cursor: default;">radio_button_checked</span>
+                <div class="d-flex justify-content-between">
+                    <div class="d-none typing-indicator flex-row align-items-center me-5">
+                        <span class="small me-2"><small>typing</small></span>
+                        <div class="container-anime">
+                            <div class="cube">
+                                <div class="cube__inner"></div>
+                            </div>
+                            <div class="cube">
+                                <div class="cube__inner"></div>
+                            </div>
+                            <div class="cube">
+                                <div class="cube__inner"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <span data-toggle="tooltip" data-placement="top" title="Disconnected" id="status-icon" class="material-icons text-danger" style="font-size: 1rem; cursor:default;">radio_button_checked</span>
+                </div>
             `);
             cardTools.removeClass("d-none").addClass("d-flex");
         });
@@ -80,8 +96,7 @@ $(document).ready(function () {
 
         chatWS.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            const statusIcon = cardHeader.find("span.status-icon");
-
+            const statusIcon = cardHeader.find("span#status-icon");
             console.log(data);
 
             if (data.type === "status_update") {
@@ -100,9 +115,12 @@ $(document).ready(function () {
                 cardBody.append(newMessageBubble);
             }
 
-            if(data.type === "typing") {
-                console.log(data.type);
-            }
+            if(data.type === "typing" && data.from_user !== "{{ request.user }}") {
+                    cardHeader.find("div > div.typing-indicator").removeClass("d-none").addClass("d-flex");
+                    setTimeout(() => {
+                        cardHeader.find("div > div.typing-indicator").removeClass("d-flex").addClass("d-none");
+                    }, 1000);
+                }
         };
 
         function createNewMessageBubble(message, from_user) {

@@ -19,7 +19,7 @@ class IndexChatView(AsyncLoginRequiredMixin, View):
         async for friend in my_friends.aiterator():
             friends.append(friend)
 
-        return await sync_to_async(render)(request, 'chat/index.html', {
+        return await sync_to_async(render)(request, 'chat/chat.html', {
             'friends': friends
         })
 
@@ -28,7 +28,6 @@ class ChatView(AsyncLoginRequiredMixin, View):
     http_method_names = ['post']
     async def post(self, request, *args, **kwargs):
         user_to_connect = request.POST.get('user_to_connect')
-        print(user_to_connect)
         to_user = await UserAccount.objects.aget(username=user_to_connect)
         from_user = await sync_to_async(UserAccount.objects.get)(username=request.user)
 

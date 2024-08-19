@@ -9,11 +9,6 @@ $(document).ready(function () {
     const existingIds = new Set();
     let isNewNotification = false;
 
-    if (window.screen.width <= 932) {
-        $("button#notif-btn").dropdown({ offset: "-85px" });
-    }
-
-
     function makeNewLiElm(id, type, from_user, created_at, action, seen) {
         const seenClass = (seen === "True" ? "seen" : "unseen");
 
@@ -166,7 +161,7 @@ $(document).ready(function () {
     }
 
     function handleScroll() {
-        if ($(this).scrollTop() + $(this).height() >= $(this)[0].scrollHeight - 10 && !fetching) {
+        if ($(this).scrollTop() + $(this).height() >= $(this)[0].scrollHeight - 20 && !fetching) {
             ++currentPage;
             fetchNotifications(currentPage, perPage);
         }

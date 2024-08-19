@@ -13,7 +13,7 @@
 			<div class="col-md-6 col-lg-6 col-12 d-flex flex-md-row flex-lg-row flex-row justify-content-between justify-content-md-start mb-md-0 mb-lg-0 mb-3">
 				<a class="fs-4 me-md-5 me-lg-5 mb-md-0 mb-lg-0" href="/">ChatApp</a>
 				{% if request.user.is_authenticated %}
-				<div class="position-relative col-8 col-md-6 col-lg-4">
+				<div class="position-relative col-6 col-md-6 col-lg-3">
 					<form autocomplete="off" role="search" method="post">
 						<div class="input-group">
 							<input class="form-control" type="search" name="search" id="user_search"
@@ -46,14 +46,19 @@
 					</button>
 					<ul class="dropdown-menu p-0"></ul>
 					<style>
-						div#notifications>ul {
+						@media (max-width:768px) {
+							div#notifications > ul {
+								transform: translate(-75px, 41px) !important;
+							}
+						}
+						div#notifications > ul {
 							max-height: 9rem;
 							min-height: auto;
 							overflow: scroll;
 							width: max-content;
 						}
 
-						div#notifications>ul::-webkit-scrollbar {
+						div#notifications > ul::-webkit-scrollbar {
 							width: 0.2rem;
 						}
 					</style>
