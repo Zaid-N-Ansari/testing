@@ -30,10 +30,6 @@ $(document).ready(function () {
 
     cardBodyButton.on("click", function () {
         cardBody.empty();
-        const req = {
-            "csrfmiddlewaretoken": "{{ csrf_token }}",
-            "user_to_connect": $(this).data().id,
-        };
         if (chatWS) {
             chatWS.close();
         }
@@ -41,6 +37,10 @@ $(document).ready(function () {
         cardBodyButton.removeClass("active");
         $(this).addClass("active");
 
+        const req = {
+            "csrfmiddlewaretoken": "{{ csrf_token }}",
+            "user_to_connect": $(this).data().id,
+        };
         $.post("{% url 'chat:personal' %}", req, function ({ to, room }) {
             intializeChatWS(room);
             getLast15Messages(room);
@@ -110,8 +110,8 @@ $(document).ready(function () {
             }
 
             if (data.type === "incoming") {
-                const { message, from_user } = data;
-                let newMessageBubble = createNewMessageBubble(message, from_user);
+                const { message, from_user, timestamp } = data;
+                let newMessageBubble = createNewMessageBubble(message, from_user, timestamp);
                 cardBody.append(newMessageBubble);
             }
 
@@ -123,7 +123,7 @@ $(document).ready(function () {
                 }
         };
 
-        function createNewMessageBubble(message, from_user) {
+        function createNewMessageBubble(message, from_user, timestamp) {
             const md = window.markdownit({
 				highlight: function (str, lang) {
 					if (lang && hljs.getLanguage(lang)) {
@@ -140,6 +140,12 @@ $(document).ready(function () {
             const newMessageBubble = document.createElement("div");
             newMessageBubble.classList.add("bubble", from_user === "{{request.user}}" ? "right" : "left");
             newMessageBubble.innerHTML = md.render(message);
+
+            const timestampElm = document.createElement("small");
+            timestampElm.innerText = timestamp;
+
+            newMessageBubble.appendChild(timestampElm);
+
             return newMessageBubble;
         }
 

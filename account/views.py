@@ -1,3 +1,4 @@
+from traceback import print_tb
 from PIL import Image
 from os.path import join, exists
 from os import mkdir, remove
@@ -50,28 +51,35 @@ class CustomLogoutView(LogoutView):
     template_name = "registration/logout.html"
 
 
-class ProfileView(LoginRequiredMixin, DetailView):
-    model = UserAccount
-    template_name = 'account/profile.html'
-
-    def get_object(self):
-        username = self.kwargs.get('username')
-        try:
-            return UserAccount.objects.get(username=username)
-        except UserAccount.DoesNotExist:
+class ProfileView(AsyncLoginRequiredMixin, View):
+    async def get(self, request, *args, **kwargs):
+        username = kwargs.get('username')
+        user = await UserAccount.objects.filter(username=username).afirst()
+        
+        if user is None:
             raise Http404("User does not exist")
 
-    def get_context_data(self, **kwargs):
-        user = self.get_object()
-        logged_in_user = self.request.user
-        context = super().get_context_data(**kwargs)
-        friend:Friend = Friend.objects.get_or_create(user=user)[0]
-        context['user'] = user
-        context['is_friend'] = logged_in_user in friend.friends.all()
-        context['fr_from_you'] = FriendRequest.objects.filter(from_user=logged_in_user, to_user=user).exists()
-        context['fr_to_you'] = FriendRequest.objects.filter(from_user=user, to_user=logged_in_user).exists()
-        context['friends_count'] = friend.friends.count() if logged_in_user == user else ''
-        return context
+        logged_in_user = request.user
+        friend, created = await Friend.objects.aget_or_create(user=user)
+        
+        # Fetch friend list asynchronously
+        fr_list = await sync_to_async(lambda: list(friend.friends.all()))()
+        fr_list = [_.username for _ in fr_list]
+        
+        # Check if logged_in_user is in the friend list
+        is_friend = str(logged_in_user) in fr_list
+        print(fr_list[0], type(logged_in_user))
+        
+        # Prepare context
+        context = {
+            'user': user,
+            'is_friend': is_friend,
+            'fr_from_you': await FriendRequest.objects.filter(from_user=logged_in_user, to_user=user).aexists(),
+            'fr_to_you': await FriendRequest.objects.filter(from_user=user, to_user=logged_in_user).aexists(),
+            'friends_count': await friend.friends.acount() if logged_in_user == user else '',
+        }
+
+        return await sync_to_async(lambda: render(request, 'account/profile.html', context))()
 
 
 class CustomPasswordResetView(PasswordResetView):
@@ -200,7 +208,7 @@ class SearchView(View):
                                 Q(first_name__icontains=user) | 
                                 Q(last_name__icontains=user)
                             )
-                            .exclude(username=user)
+                            .exclude(username=request.user)
                             .values_list(*fields)
                         )
                     )()

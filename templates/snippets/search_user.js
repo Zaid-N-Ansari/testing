@@ -53,7 +53,7 @@ $(document).ready(function () {
 					`<li class="list-group-item list-group-item-action">
 						<a href="/account/profile/${user.username}" class="d-flex flex-row align-items-center justify-content-between" target="_blank">
 							${user.username}
-							<img src="${user.profile_image}" loading="lazy" style="width: 3rem;" />
+							<img src="${user.profile_image}" loading="lazy" class="rounded-circle" style="width: 3rem;" />
 						</a>
 					</li>`
 				);

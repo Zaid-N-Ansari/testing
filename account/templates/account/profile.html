@@ -58,18 +58,18 @@ Profile
 				{% else %}
 				<div {% if is_friend %} 
 					class="form-group mt-3 d-flex justify-content-around">
-					<button id="unfriend-btn" class="btn text-danger" data-bs-toggle="tooltip" data-bs-placement="bottom"
+					<button id="unfriend-btn" class="btn text-danger" data-toggle="tooltip" data-placement="bottom"
 						title="Unfriend {{user.username}}">
 						<span class="material-icons">person_remove</span>
 					</button>
 					<script>{% include 'friend/snippets/unfriend.js' %}</script>
-					<button class="btn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Chat">
-						<a href="{% url 'chat:chat' user.username %}"><span class="material-icons text-info">chat</span></a>
+					<button class="btn" data-toggle="tooltip" data-placement="bottom" title="Chat">
+						<a href="{% url 'chat:personal' %}"><span class="material-icons text-info">chat</span></a>
 					</button>
 					{% else %}
 						{% if fr_from_you %}
 						class="text-start shadow rounded">
-						<button id="cancel-request-btn" class="btn" data-bs-toggle="tooltip" data-bs-placement="bottom"
+						<button id="cancel-request-btn" class="btn" data-toggle="tooltip" data-placement="bottom"
 							title="Pending Friend Request">
 							<span class="material-icons">schedule</span>
 						</button>
@@ -77,18 +77,18 @@ Profile
 						{% else %}
 							{% if fr_to_you %}
 							class="form-group mt-3 d-flex justify-content-around">
-							<button aria-valuetext="accept" id="fr-action-btn" class="btn text-success" data-bs-toggle="tooltip" data-bs-placement="left"
+							<button aria-valuetext="accept" id="fr-action-btn" class="btn text-success" data-toggle="tooltip" data-placement="left"
 								title="Accept fr">
 								<span aria-valuetext="accept" class="material-icons">check</span>
 							</button>
-							<button aria-valuetext="reject" id="fr-action-btn" class="btn text-danger" data-bs-toggle="tooltip" data-bs-placement="right"
+							<button aria-valuetext="reject" id="fr-action-btn" class="btn text-danger" data-toggle="tooltip" data-placement="right"
 								title="Reject fr">
 								<span aria-valuetext="reject" class="material-icons">close</span>
 							</button>
 							<script>{% include 'friend/snippets/friend-action.js' %}</script>
 							{% else %}
 							class="text-start">
-							<button id="addfriend-btn" class="btn text-success" data-bs-toggle="tooltip" data-bs-placement="right"
+							<button id="addfriend-btn" class="btn text-success" data-toggle="tooltip" data-placement="right"
 								title="Friend {{user.username}}">
 								<span class="material-icons">person_add</span>
 							</button>

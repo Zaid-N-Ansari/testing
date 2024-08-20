@@ -25,7 +25,7 @@ class IndexChatView(AsyncLoginRequiredMixin, View):
 
 
 class ChatView(AsyncLoginRequiredMixin, View):
-    http_method_names = ['post']
+    http_method_names = ['post', 'get']
     async def post(self, request, *args, **kwargs):
         user_to_connect = request.POST.get('user_to_connect')
         to_user = await UserAccount.objects.aget(username=user_to_connect)
@@ -43,3 +43,6 @@ class ChatView(AsyncLoginRequiredMixin, View):
             'to':str(to_user),
             'room': room[0].name,
         })
+    
+    async def get(self, request, *args, **kwargs):
+        self.post(request, *args, **kwargs)
