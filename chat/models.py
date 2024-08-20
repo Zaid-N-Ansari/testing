@@ -2,22 +2,6 @@ from django.db import models
 from account.models import UserAccount
 from asgiref.sync import sync_to_async
 
-class Group(models.Model):
-    admin = models.ForeignKey(
-        UserAccount,
-        on_delete=models.CASCADE,
-        related_name='admin_groups'
-    )
-    participants = models.ManyToManyField(
-        UserAccount,
-        related_name='groups'
-    )
-    name = models.CharField(max_length=50, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
-
 class ChatRoom(models.Model):
     PERSONAL = 'personal'
     GROUP = 'group'
@@ -33,14 +17,7 @@ class ChatRoom(models.Model):
         choices=ROOM_TYPES,
         default=PERSONAL
     )
-    name = models.CharField(max_length=16)
-    group = models.ForeignKey(
-        Group,
-        on_delete=models.CASCADE,
-        related_name='chat_rooms',
-        null=True,
-        blank=True
-    )
+    name = models.CharField(max_length=16, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     async def get_participants(self):
@@ -69,8 +46,47 @@ class ChatRoom(models.Model):
         return f'{self.name}'
 
 
+def get_group_image_filepath(instance, filename):    
+    return f'GroupImage/{instance.pk}/{filename}'
+
+def get_group_image():
+    return f'ChatApp/defaultgi.jpg'
+
+
+class Group(models.Model):
+    group_image = models.ImageField(
+        max_length=255,
+        upload_to=get_group_image_filepath,
+        default=get_group_image,
+        null=True,
+        blank=True,
+    )
+    admin = models.ForeignKey(
+        UserAccount,
+        on_delete=models.CASCADE,
+        related_name='admin_of_group'
+    )
+    participant = models.ManyToManyField(
+        UserAccount,
+        related_name='groups'
+    )
+    chatroom = models.ForeignKey(
+        ChatRoom,
+        on_delete=models.CASCADE,
+        related_name='group'
+    )
+    name = models.CharField(
+        max_length=16,
+        unique=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Message(models.Model):
-    chat_room = models.ForeignKey(
+    chatroom = models.ForeignKey(
         ChatRoom,
         on_delete=models.CASCADE
     )

@@ -1,4 +1,3 @@
-from traceback import print_tb
 from PIL import Image
 from os.path import join, exists
 from os import mkdir, remove
@@ -62,15 +61,13 @@ class ProfileView(AsyncLoginRequiredMixin, View):
         logged_in_user = request.user
         friend, created = await Friend.objects.aget_or_create(user=user)
         
-        # Fetch friend list asynchronously
+
         fr_list = await sync_to_async(lambda: list(friend.friends.all()))()
         fr_list = [_.username for _ in fr_list]
-        
-        # Check if logged_in_user is in the friend list
+
         is_friend = str(logged_in_user) in fr_list
         print(fr_list[0], type(logged_in_user))
-        
-        # Prepare context
+
         context = {
             'user': user,
             'is_friend': is_friend,
