@@ -10,9 +10,9 @@ urlpatterns = [
 	path('account/', include('account.urls', namespace='account')),
 	path('friend/', include('friend.urls', namespace='friend')),
 	path('chat/', include('chat.urls', namespace='chat')),
+	path('group/', include('chat.urls', namespace='group')),
 ]
 
-if settings.DEBUG:
-	urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

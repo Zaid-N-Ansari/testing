@@ -5,7 +5,7 @@ textarea {
 }
 
 div.h-custom {
-	height: 90vh;
+	height: 90vh !important;
 }
 
 .list-group-item.active {
@@ -153,4 +153,18 @@ div.h-custom {
 	75% {
 		transform: scaleY(0.8) scaleX(1.2);
 	}
+}
+
+@media (max-width:768px) {
+	div.h-sm-custom {
+		height: max-content !important;
+	}
+
+	button[data-id] {
+		max-width: 4.6rem;
+		overflow-wrap: anywhere;
+	}
+	/* button[data-type] div small {
+		display: none;
+	} */
 }

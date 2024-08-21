@@ -70,6 +70,11 @@ class Group(models.Model):
         UserAccount,
         related_name='groups'
     )
+    desc = models.TextField(
+        max_length=100,
+        null=True,
+        blank=True
+    )
     chatroom = models.ForeignKey(
         ChatRoom,
         on_delete=models.CASCADE,

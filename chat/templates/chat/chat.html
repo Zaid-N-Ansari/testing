@@ -1,7 +1,14 @@
 {% extends "base.html" %}
+{% load humanize %}
 {% block title %}Chat{% endblock title %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/default.min.css"
+	integrity="sha512-hasIneQUHlh06VNBe7f6ZcHmeRTLIaQWFd43YriJ0UND19bvYRauxthDg8E4eVNPm9bRUhr5JGeqH7FRFXQu5g=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-dark.min.css"
+	integrity="sha512-Jk4AqjWsdSzSWCSuQTfYRIF84Rq/eV0G2+tu07byYwHcbTGfdmLrHjUSwvzp5HvbiqK4ibmNwdcG49Y5RGYPTg=="
+	crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/markdown-it/13.0.2/markdown-it.min.js"
 	integrity="sha512-ohlWmsCxOu0bph1om5eDL0jm/83eH09fvqLDhiEdiqfDeJbEvz4FSbeY0gLJSVJwQAp0laRhTXbUQG+ZUuifUQ=="
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -23,27 +30,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/python.min.js"
 	integrity="sha512-Q4s1KlNQrISoyXajz4f6ueVt5h4BPLEkAQ10SjTktC/G5cgEuGbfPLFx/1Q2VsK0cZ146upkwvAjfVLVa4EStQ=="
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/styles/atom-one-dark.min.css"
-	integrity="sha512-Jk4AqjWsdSzSWCSuQTfYRIF84Rq/eV0G2+tu07byYwHcbTGfdmLrHjUSwvzp5HvbiqK4ibmNwdcG49Y5RGYPTg=="
-	crossorigin="anonymous" referrerpolicy="no-referrer" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/php.min.js"
 	integrity="sha512-Gde2hoEUx5qPs6AgZnAU4U9t+T93OyFaTL0xBrMflHP2nU7jOpUtaYQ5l32YGLgnwOKPkl7S8YTM2FHMRWmebg=="
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<style>
-	@media (max-width:768px) {
-		div.h-sm-custom {
-			height: max-content !important;
-		}
-
-		button[data-id] {
-			width: 7rem;
-			max-width: 4.6rem;
-			overflow-wrap: anywhere;
-		}
-	}
-
-	{% include 'chat/chat.css' %}
-</style>
+<style>{% include 'chat/chat.css' %}</style>
 <div class="container-fluid h-full">
 	<div class="row flex-md-row flex-lg-row flex-column justify-content-center">
 		<div class="col-12 col-md-4 col-lg-2 pe-md-1 pe-lg-1 pb-2 pb-md-0 pb-lg-0">
@@ -58,7 +48,18 @@
 						class="list-group-item list-group-item-action d-flex flex-column flex-md-row flex-lg-row align-items-start justify-content-between border p-2 rounded my-1 ms-1 me-1 ms-md-0 me-md-0 ms-lg-0 me-lg-0">
 						<img style="width: 2.5rem;" src="{{ friend.profile_image.url }}" class="rounded-circle"
 							loading="lazy" />
-						<p class="mt-1 mt-md-0 mt-lg-0 m-0" style="line-height: 1.25rem;">{{ friend }}</p>
+						<div class="flex-fill ms-md-2 ms-lg-2">
+							<p class="mt-1 mt-md-0 mt-lg-0 m-0" style="line-height: 1.25rem;">{{ friend }}</p>
+							<small class="d-none d-md-block d-lg-block">
+								{% if friend.last_login|naturalday == 'today' %}
+								{{ friend.last_login|naturalday }}, {{ friend.last_login|naturaltime }}
+								{% elif friend.last_login|naturalday == 'yesterday' %}
+								{{ friend.last_login|naturalday }}, {{ friend.last_login|time }}
+								{% else %}
+								{{ friend.last_login|naturaltime }}
+								{% endif %}
+							</small>
+						</div>
 					</button>
 					{% endfor%}
 					{% for group in groups %}
@@ -66,12 +67,16 @@
 						class="list-group-item list-group-item-action d-flex flex-column flex-md-row flex-lg-row align-items-start justify-content-between border p-2 rounded my-1 ms-1 me-1 ms-md-0 me-md-0 ms-lg-0 me-lg-0">
 						<img style="width: 2.5rem;" src="{{ group.group_image.url }}" class="rounded-circle"
 							loading="lazy" />
-						<p class="mt-1 mt-md-0 mt-lg-0 m-0" style="line-height: 1.25rem;">{{ group }}</p>
+						<div class="flex-fill ms-md-2 ms-lg-2">
+							<p class="mt-1 mt-md-0 mt-lg-0 m-0 flex-fill" style="line-height: 1.25rem;">{{ group }}</p>
+							<small class="d-none d-md-block d-lg-block">{{ group.desc|slice:'0:20' }}...</small>
+						</div>
 					</button>
 					{% endfor%}
 				</div>
 				<div class="card-footer d-flex justify-content-center">
-					<button type="button" class="btn d-flex justify-content-center"><span class="material-icons me-2">diversity_2</span>Create Group</button>
+					<button type="button" class="btn d-flex justify-content-center" data-bs-toggle="modal" data-bs-target="#create-group"><span
+							class="material-icons me-2">diversity_2</span>Create Group</button>
 				</div>
 			</div>
 		</div>
@@ -102,6 +107,9 @@
 			</div>
 		</div>
 	</div>
+</div>
+
+<div class="modal fade" id="create-group" tabindex="-1" aria-labelledby="create-group" aria-hidden="true">
 </div>
 <script>{% include 'chat/chat.js' %}</script>
 {% endblock content %}

@@ -1,11 +1,10 @@
 from PIL import Image
-from os.path import join, exists
+from os.path import join, exists, basename
 from os import mkdir, remove
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse_lazy, reverse
 from django.views import View
 from django.views.generic.edit import FormView
-from django.views.generic import DetailView
 from django.shortcuts import redirect, render
 from django.db.models import Q
 from django.http import Http404, JsonResponse
@@ -66,7 +65,6 @@ class ProfileView(AsyncLoginRequiredMixin, View):
         fr_list = [_.username for _ in fr_list]
 
         is_friend = str(logged_in_user) in fr_list
-        print(fr_list[0], type(logged_in_user))
 
         context = {
             'user': user,
@@ -146,12 +144,12 @@ class ProfileEditView(AsyncLoginRequiredMixin, View):
 
         await self.process_and_save_image(temp_url, x, y, s, user)
 
-    async def process_and_save_image(self, img_path, x, y, size, user):
+    async def process_and_save_image(self, img_path, x, y, size, user:UserAccount):
         with Image.open(img_path) as img:
             crop_img = img.crop((x, y, x + size, y + size))
             crop_img.save(img_path)
 
-        if user.profile_image.name.split('/')[2] != 'defaultpfi.jpg':
+        if basename(img_path) != 'defaultpfi.pfi':
             await sync_to_async(user.profile_image.delete)()
 
         await sync_to_async(user.profile_image.save)('profile_image.png', File(open(img_path, 'rb')), save=False)

@@ -19,8 +19,7 @@ class IndexChatView(AsyncLoginRequiredMixin, View):
         async for friend in my_friends.aiterator():
             friends.append(friend)
 
-        groups = await sync_to_async(lambda: list(Group.objects.filter(participant=request.user)))()
-
+        groups = await sync_to_async(lambda: (Group.objects.filter(participant=request.user)))()
 
         return await sync_to_async(render)(request, 'chat/chat.html', {
             'friends': friends,
