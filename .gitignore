@@ -1,24 +1,16 @@
-# Ignore all static files
 static_cdn/
 
-# Ignore virtual environment
 .venv/
 
-# Ignore the SQLite database
 db.sqlite3
 
-# Ignore all migration files except __init__.py
-*/migrations/
 !*/migrations/__init__.py
+*/migrations/
 
-# Ignore __pycache__ directories
-__pycache__/
+__pycache__
 
-# Ignore bat files
 gitacp.bat
 
-# Ignore temp files
 temp/
 
-# Ignore all profile images in media_cdn/ProfileImage/
 media_cdn/ProfileImage/
