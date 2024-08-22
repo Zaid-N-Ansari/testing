@@ -1,6 +1,7 @@
 from django import forms
-from account.models import UserAccount
+from django.core.exceptions import ValidationError
 
+from account.models import UserAccount
 from friend.models import Friend
 from.models import Group
 
@@ -8,6 +9,9 @@ class GroupCreationForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = ['name', 'group_image', 'participant', 'desc']
+        widgets = {
+            'group_image': forms.FileInput(attrs={'class':'form-control d-none', 'onchange':'readImageFile(this)'})
+        }
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)

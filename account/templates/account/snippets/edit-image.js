@@ -42,7 +42,7 @@ function readImageFile(input) {
 		const reader = new FileReader();
 		reader.onload = function (e) {
 			let image = e.target.result;
-			const imageField = $("img")[1];
+			const imageField = $("img.img_edit")[0];
 			imageField.src = image;
 			const imageData = image.split(",")[1];
 			const cropper = new Cropper(imageField, {

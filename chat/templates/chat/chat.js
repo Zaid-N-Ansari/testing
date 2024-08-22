@@ -8,8 +8,6 @@ $(document).ready(function () {
     let chatWS;
     let roomType;
 
-    cardBody.scrollTop(cardBody[0].scrollHeight);
-
     cardHeader.text("Welcome to ChatApp, Happy Chatting...");
     cardTools.removeClass("d-flex").addClass("d-none");
 
@@ -54,6 +52,12 @@ $(document).ready(function () {
         $.post(url, req, function ({ to, room }) {
             setupAndInitializeChatArea(to, room);
         });
+    });
+
+    $("button[data-id]").each(function () {
+        if ($(this).data().id === location.search.split("=")[1]) {
+            $(this).click();
+        }
     });
 
     function setupAndInitializeChatArea(to, room) {
@@ -131,6 +135,7 @@ $(document).ready(function () {
             if (data.type === "incoming") {
                 const { message, from_user, timestamp } = data;
                 cardBody.append(createNewMessageBubble(message, from_user, timestamp));
+                cardBody.scrollTop(cardBody[0].scrollHeight);
             }
 
             if (data.type === "typing" && data.from_user !== "{{ request.user }}") {
@@ -142,7 +147,7 @@ $(document).ready(function () {
 
         function createNewMessageBubble(message, from_user, timestamp) {
             const md = window.markdownit({
-                highlight: function (str, lang = "text") {
+                highlight: function (str, lang) {
                     if (lang && hljs.getLanguage(lang)) {
                         try {
                             return '<pre><code class="hljs">' +
@@ -187,10 +192,4 @@ $(document).ready(function () {
             textArea.val("");
         });
     }
-
-    $("button[data-id]").each(function () {
-        if ($(this).data().id === location.search.split("=")[1]) {
-            $(this).click();
-        }
-    });
 });

@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views import View
 from account.models import UserAccount
 from account.views import AsyncLoginRequiredMixin
@@ -14,12 +14,8 @@ class IndexChatView(AsyncLoginRequiredMixin, View):
     http_method_names = ['get', 'post']
 
     async def get(self, request, *args, **kwargs):
-    # Create a fresh instance of the form without any initial data
-        form = GroupCreationForm()
-        if request.GET.get('user_or_group_to_connect'):
-            pass
+        form = GroupCreationForm(user=request.user)
 
-        # Asynchronously fetch the friends and groups
         my_friends_inst = await sync_to_async(lambda: Friend.objects.filter(user=request.user).first())()
         if my_friends_inst:
             my_friends_ids = await sync_to_async(lambda: list(my_friends_inst.friends.values_list('id', flat=True)))()
@@ -29,7 +25,6 @@ class IndexChatView(AsyncLoginRequiredMixin, View):
         friends = await sync_to_async(lambda: UserAccount.objects.filter(id__in=my_friends_ids))()
         groups = await sync_to_async(lambda: Group.objects.filter(participant=request.user))()
 
-        # Render the response asynchronously
         return await sync_to_async(render)(request, 'chat/chat.html', {
             'friends': friends,
             'groups': groups,
@@ -42,7 +37,7 @@ class IndexChatView(AsyncLoginRequiredMixin, View):
             group:Group = await sync_to_async(form.save)(commit=False)
             group.admin = request.user
             chatroom_name = get_random_string(16)
-            chatroom, created = await sync_to_async(ChatRoom.objects.get_or_create)(name=chatroom_name, room_type=ChatRoom.GROUP)
+            chatroom, _ = await sync_to_async(ChatRoom.objects.get_or_create)(name=chatroom_name, room_type=ChatRoom.GROUP)
             group.chatroom = chatroom
             await sync_to_async(group.save)()
             await sync_to_async(group.participant.set)(form.cleaned_data['participant'])
@@ -53,11 +48,7 @@ class IndexChatView(AsyncLoginRequiredMixin, View):
 
         groups = await sync_to_async(lambda: Group.objects.filter(participant=request.user))()
 
-        return await sync_to_async(render)(request, 'chat/chat.html', {
-            'friends': friends,
-            'groups': groups,
-            'form': form
-        })
+        return await sync_to_async(redirect)('chat:index',permanent=True)
 
 
 
