@@ -33,7 +33,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.10.0/languages/php.min.js"
 	integrity="sha512-Gde2hoEUx5qPs6AgZnAU4U9t+T93OyFaTL0xBrMflHP2nU7jOpUtaYQ5l32YGLgnwOKPkl7S8YTM2FHMRWmebg=="
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<style>{% include 'chat/chat.css' %}</style>
+<style>
+	{% include 'chat/chat.css' %}
+</style>
 <div class="container-fluid h-full">
 	<div class="row flex-md-row flex-lg-row flex-column justify-content-center">
 		<div class="col-12 col-md-4 col-lg-2 pe-md-1 pe-lg-1 pb-2 pb-md-0 pb-lg-0">
@@ -61,7 +63,7 @@
 							</small>
 						</div>
 					</button>
-					{% endfor%}
+					{% endfor %}
 					{% for group in groups %}
 					<button data-type="group" data-id="{{ group.chatroom }}"
 						class="list-group-item list-group-item-action d-flex flex-column flex-md-row flex-lg-row align-items-start justify-content-between border p-2 rounded my-1 ms-1 me-1 ms-md-0 me-md-0 ms-lg-0 me-lg-0">
@@ -72,11 +74,12 @@
 							<small class="d-none d-md-block d-lg-block">{{ group.desc|slice:'0:20' }}...</small>
 						</div>
 					</button>
-					{% endfor%}
+					{% endfor %}
 				</div>
 				<div class="card-footer d-flex justify-content-center">
-					<button type="button" class="btn d-flex justify-content-center" data-bs-toggle="modal" data-bs-target="#create-group"><span
-							class="material-icons me-2">diversity_2</span>Create Group</button>
+					<button type="button" class="btn d-flex justify-content-center" data-bs-toggle="modal"
+						data-bs-target="#create-group"><span class="material-icons me-2">diversity_2</span>Create
+						Group</button>
 				</div>
 			</div>
 		</div>
@@ -109,7 +112,53 @@
 	</div>
 </div>
 
-<div class="modal fade" id="create-group" tabindex="-1" aria-labelledby="create-group" aria-hidden="true">
+<div class="modal fade modal-dialog position-absolute top-50 start-50 translate-middle" id="create-group" tabindex="-1" aria-labelledby="create-group" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h1 class="modal-title fs-5" id="exampleModalLabel">New Group</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form method="post">
+					{% csrf_token %}
+
+					<div class="form-group mb-4">
+						{{ form.group_image.label_tag }}
+						{{ form.group_image }}
+					</div>
+					<div class="form-group mb-4">
+						{{ form.name.label_tag }}
+						{{ form.name }}
+					</div>
+					<div class="form-group mb-4">
+						{{ form.participant.label_tag }}
+						{{ form.participant }}
+					</div>
+					<div class="form-group mb-4">
+						{{ form.desc.label_tag }}
+						{{ form.desc }}
+					</div>
+
+					{% if form.non_field_errors %}
+					<div class="alert alert-danger alert-dismissible fade show ps-2 p-0 d-flex flex-row align-items-center justify-content-between"
+						role="alert">
+						<div>
+							{% for error in form.non_field_errors %}
+							<p class="mb-0">{{ error }}</p>
+							{% endfor %}
+						</div>
+						<button type="button" class="close float-end bg-transparent border-0 fs-3 text-danger"
+							data-dismiss="alert" aria-label="Close">&times;</button>
+					</div>
+					{% endif %}
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary float-end mt-4 w-100 border-0">Create</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </div>
 <script>{% include 'chat/chat.js' %}</script>
 {% endblock content %}

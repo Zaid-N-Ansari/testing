@@ -52,7 +52,6 @@ def get_group_image_filepath(instance, filename):
 def get_group_image():
     return f'ChatApp/defaultgi.jpg'
 
-
 class Group(models.Model):
     group_image = models.ImageField(
         max_length=255,
@@ -71,6 +70,7 @@ class Group(models.Model):
         related_name='groups'
     )
     desc = models.TextField(
+        verbose_name='Description',
         max_length=100,
         null=True,
         blank=True

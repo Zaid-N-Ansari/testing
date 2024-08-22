@@ -4,27 +4,61 @@ from django.views import View
 from account.models import UserAccount
 from account.views import AsyncLoginRequiredMixin
 from asgiref.sync import sync_to_async
+from django.utils.crypto import get_random_string
 from chat.models import ChatRoom, Group
 from friend.models import Friend
+from .forms import GroupCreationForm
+
 
 class IndexChatView(AsyncLoginRequiredMixin, View):
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
+
     async def get(self, request, *args, **kwargs):
-        my_friends_inst = await Friend.objects.filter(user=request.user).afirst()
+    # Create a fresh instance of the form without any initial data
+        form = GroupCreationForm()
 
-        my_friends = await sync_to_async(lambda: my_friends_inst.friends)()
+        # Asynchronously fetch the friends and groups
+        my_friends_inst = await sync_to_async(lambda: Friend.objects.filter(user=request.user).first())()
+        if my_friends_inst:
+            my_friends_ids = await sync_to_async(lambda: list(my_friends_inst.friends.values_list('id', flat=True)))()
+        else:
+            my_friends_ids = []
 
-        friends = []
+        friends = await sync_to_async(lambda: UserAccount.objects.filter(id__in=my_friends_ids))()
+        groups = await sync_to_async(lambda: Group.objects.filter(participant=request.user))()
 
-        async for friend in my_friends.aiterator():
-            friends.append(friend)
+        # Render the response asynchronously
+        return await sync_to_async(render)(request, 'chat/chat.html', {
+            'friends': friends,
+            'groups': groups,
+            'form': form
+        })
+    
+    async def post(self, request, *args, **kwargs):
+        form = GroupCreationForm(request.POST, request.FILES, user=request.user)
+        if await sync_to_async(form.is_valid)():
+            group:Group = await sync_to_async(form.save)(commit=False)
+            group.admin = request.user
+            chatroom_name = get_random_string(16)
+            chatroom, created = await sync_to_async(ChatRoom.objects.get_or_create)(name=chatroom_name, room_type=ChatRoom.GROUP)
+            group.chatroom = chatroom
+            await sync_to_async(group.save)()
+            await sync_to_async(group.participant.set)(form.cleaned_data['participant'])
+            await group.participant.aadd(request.user)
 
-        groups = await sync_to_async(lambda: (Group.objects.filter(participant=request.user)))()
+        my_friends = await sync_to_async(lambda: list(Friend.objects.filter(user=request.user).values_list('friends', flat=True)))()
+        friends = await sync_to_async(lambda: UserAccount.objects.filter(id__in=my_friends))()
+
+        groups = await sync_to_async(lambda: Group.objects.filter(participant=request.user))()
 
         return await sync_to_async(render)(request, 'chat/chat.html', {
             'friends': friends,
-            'groups': groups
+            'groups': groups,
+            'form': form
         })
+
+
+
 
 
 class PersonalChatView(AsyncLoginRequiredMixin, View):

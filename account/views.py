@@ -35,7 +35,7 @@ from .forms import (
 class AsyncLoginRequiredMixin(AccessMixin):
     async def dispatch(self, request, *args, **kwargs):
         if not await sync_to_async(lambda: request.user.is_authenticated)():
-            return super().handle_no_permission()
+            return await sync_to_async(self.handle_no_permission)()
         return await super().dispatch(request, *args, **kwargs)
 
 
