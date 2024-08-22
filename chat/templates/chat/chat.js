@@ -134,9 +134,9 @@ $(document).ready(function () {
             }
 
             if (data.type === "typing" && data.from_user !== "{{ request.user }}") {
-                typingIndicator.toggleClass(["d-none","d-flex"])
+                typingIndicator.toggleClass(["d-none", "d-flex"])
                     .find("span > small").text(data.message);
-                setTimeout(() => typingIndicator.toggleClass(["d-none","d-flex"]), 1500);
+                setTimeout(() => typingIndicator.toggleClass(["d-none", "d-flex"]), 1500);
             }
         };
 
@@ -187,4 +187,10 @@ $(document).ready(function () {
             textArea.val("");
         });
     }
+
+    $("button[data-id]").each(function () {
+        if ($(this).data().id === location.search.split("=")[1]) {
+            $(this).click();
+        }
+    });
 });

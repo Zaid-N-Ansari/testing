@@ -16,6 +16,8 @@ class IndexChatView(AsyncLoginRequiredMixin, View):
     async def get(self, request, *args, **kwargs):
     # Create a fresh instance of the form without any initial data
         form = GroupCreationForm()
+        if request.GET.get('user_or_group_to_connect'):
+            pass
 
         # Asynchronously fetch the friends and groups
         my_friends_inst = await sync_to_async(lambda: Friend.objects.filter(user=request.user).first())()

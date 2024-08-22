@@ -42,19 +42,29 @@ class Unfriend(View):
     async def post(self, request, *args, **kwargs):
         user = request.POST.get('friend')
         try:
-            from_user = await UserAccount.objects.aget(username=request.user)
-            to_user = await UserAccount.objects.aget(username=user)
+            print(await UserAccount.objects.aget(username=request.user))
+            from_user = await UserAccount.objects.filter(username=request.user).afirst()
+            to_user = await UserAccount.objects.filter(username=user).afirst()
 
-            friend_instance = await Friend.objects.aget_or_create(user=from_user)
-            friend_instance = friend_instance[0]
-            await friend_instance.remove_friend(to_user)
+            friend_inst, _ = await Friend.objects.aget_or_create(user=from_user)
+            await friend_inst.remove_friend(to_user)
+            await Notification.objects.acreate(
+                from_user=from_user,
+                to_user=to_user,
+                action=f'You unfriended {to_user}',
+                type='regular_notification'
+            )
 
-            friend_instance = await Friend.objects.aget_or_create(user=to_user)
-            friend_instance = friend_instance[0]
-            await friend_instance.remove_friend(from_user)
+            friend_inst, _ = await Friend.objects.aget_or_create(user=to_user)
+            await friend_inst.remove_friend(from_user)
+            await Notification.objects.acreate(
+                from_user=to_user,
+                to_user=from_user,
+                action=f'{from_user} unfriended You',
+                type='regular_notification'
+            )
 
         except Exception as e:
-            print(e)
             return JsonResponse({'result': 'An Unexpected Error has Occurred'})
 
         else:

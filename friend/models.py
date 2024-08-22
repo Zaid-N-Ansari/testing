@@ -19,7 +19,7 @@ class Friend(models.Model):
 		return f'{self.user}'
 
 	async def is_friend(self, user):
-		return await self.friends.filter(pk=user.pk).aexists() and user != self.user
+		return await self.friends.filter(pk=user.pk).aexists()
 
 	async def add_friend(self, to_add_friend):
 		if await self.is_friend(to_add_friend):
@@ -88,8 +88,8 @@ class FriendRequest(models.Model):
 
 class Notification(models.Model):
     NOTIFICATION_TYPES = (
-        ('friend_request_notification', 'Friend Request Notfication'),
-        ('regular_notification', 'Regular Notfication'),
+        ('friend_request_notification', 'Friend Request Notification'),
+        ('regular_notification', 'Regular Notification'),
     )
 
     from_user = models.ForeignKey(

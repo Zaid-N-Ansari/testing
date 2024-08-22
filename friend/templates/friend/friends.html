@@ -1,31 +1,25 @@
 {% extends "base.html" %}
 {% block title %}Friends{% endblock title %}
 {% block content %}
-
 <div class="container h-full">
 	<div class="row justify-content-center">
 		{% for friend in friends %}
-		<div class="col-10 col-md-6 col-lg-4 mb-2 mt-2">
-			<div class="card p-2 flex-column">
-				<div class="d-flex flex-row w-100 justify-content-between">
-					<a target="_blank" href="{% url 'account:profile' friend.username %}"
-						class="d-flex flex-row w-100 justify-content-between">
-						<p>{{friend.username}}</p>
-						<img class="rounded-circle" src="{{friend.profile_image.url}}"
-							style="height: 10vh; width: 10vh;">
-					</a>
-				</div>
-				<div class="d-flex flex-row justify-content-between" style="width: 15dvh;">
-					<button id="unfriend-btn" class="bg-transparent border-0 text-danger" data-toggle="tooltip"
-						data-placement="top" title="Unfriend {{friend.username}}" type="button">
+		<div class="col-8 col-md-5 col-lg-3 d-flex flex-row justify-content-between card py-2 mb-2 pe-0 me-1 ms-1">
+			<div class="d-flex flex-column w-50 justify-content-between">
+				<a target="_blank" href="{% url 'account:profile' friend %}" class="text-center m-auto">
+					<p>{{ friend }}</p>
+				</a>
+				<div class="d-flex flex-row justify-content-between w-100">
+					<button id="unfriend-btn" class="bg-transparent border-0 text-danger" data-toggle="tooltip" data-placement="top" type="button" data-bs-original-title="Unfriend {{ friend }}">
 						<span class="material-icons">person_remove</span>
 					</button>
-					<button id="chat-btn" class="bg-transparent border-0 text-primary" data-toggle="tooltip"
-						data-placement="top" title="Message {{friend.username}}" type="button">
-						<a href="#"><span class="material-icons">chat</span></a>
-					</button>
+					<form action="{% url 'chat:index' %}" method="get" data-toggle="tooltip" data-placement="top" type="button" data-bs-original-title="Message {{ friend }}">
+						<input type="hidden" name="user_or_group_to_connect" value="{{friend}}" />
+						<button class="btn" type="submit"><span class="material-icons">chat</span></button>
+					</form>
 				</div>
 			</div>
+			<img class="rounded-circle m-auto" src="{{ friend.profile_image.url }}" style="width: 6rem; height: 6rem;">
 		</div>
 		{% empty %}
 			<h3 class="text-center">No Friends Found</h3>
@@ -33,5 +27,4 @@
 	</div>
 	<script>{% include 'friend/snippets/unfriend.js' %}</script>
 </div>
-
 {% endblock content %}
