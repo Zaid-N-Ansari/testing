@@ -23,31 +23,27 @@
 							</div>
 						</div>
 					</form>
-					<div id="notifications" class="position-absolute d-none flex-column align-items-center justify-content-between z-3">
+					<div class="position-absolute d-none flex-column align-items-center justify-content-between z-3">
 						<ul id="search_result" class="list-group"></ul>
 						<div id="pagination_controls"
 							class="pagination-controls d-flex align-items-center justify-content-between user-select-none" style="background-color: var(--bs-body-bg);">
 						</div>
+						<style>
+							@media (max-width:768px) {
+								ul#search_result + div {
+									width: max-content;
+									transform: translate(-12vw, 0.5vh);
+								}
+								ul#search_result {
+									transform: translate(-12vw, 0.5vh);
+								}
+							}
+						</style>
 					</div>
 				</div>
 				<script>{% include 'snippets/search_user.js' %}</script>
 				{% endif %}
 			</div>
-			<style>
-				@media (max-width:768px) {
-					div#notifications {
-						transform: translate(-20%, 2%) !important;
-					}
-				}
-				div#notifications {
-					width: max-content;
-					transform: translate(-1vw, 1vh);
-				}
-
-				div#notifications > ul::-webkit-scrollbar {
-					width: 0.2rem;
-				}
-			</style>
 			<div
 				class="d-flex user-select-none px-3 w-auto align-items-center">
 				{% if request.user.is_authenticated %}
@@ -59,6 +55,23 @@
 							class="position-absolute top-0 start-100 translate-middle text-info border-0 rounded-circle"></span>
 					</button>
 					<ul class="dropdown-menu p-0"></ul>
+					<style>
+						@media (max-width:768px) {
+							div#notifications > ul {
+								transform: translate(-75px, 41px) !important;
+							}
+						}
+						div#notifications > ul {
+							max-height: 9rem;
+							min-height: auto;
+							overflow: scroll;
+							width: max-content;
+						}
+
+						div#notifications > ul::-webkit-scrollbar {
+							width: 0.2rem;
+						}
+					</style>
 					<script>{% include 'snippets/notifications.js' %}</script>
 				</div>
 				<div class="dropdown text-end ms-5">

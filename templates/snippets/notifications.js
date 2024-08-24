@@ -85,7 +85,7 @@ $(document).ready(function () {
                 $("span#counter").text(count);
 
                 if (existingIds.has(id)) {
-                    if (type === "regular_notification") {
+                    if (type === "regular_notification") {                        
                         $(`li[data-id="${id}"] > div > div#friend-action`).html("");
                     }
 
@@ -136,6 +136,8 @@ $(document).ready(function () {
 
     notificationWS.onmessage = function (event) {
         const data = JSON.parse(event.data);
+        console.log(data);
+        
 
         if (data.notifications) {
             renderNotifications(data.notifications, isNewNotification);
