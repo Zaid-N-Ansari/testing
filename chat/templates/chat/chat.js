@@ -5,8 +5,7 @@ $(document).ready(function () {
     const cardTools = $("div.card-tools");
     const cardBodyButton = $("div.card > div.card-body > button");
     const textArea = $("textarea#input-msg");
-    let chatWS;
-    let roomType;
+    let chatWS, roomType, loading = false, currentPage = 1, perPage = 10, totalPages;
 
     cardHeader.text("Welcome to ChatApp, Happy Chatting...");
     cardTools.removeClass("d-flex").addClass("d-none");
@@ -15,7 +14,6 @@ $(document).ready(function () {
         if (event.shiftKey && event.keyCode === 13) {
             $("button#send-msg-btn").click();
         }
-
         if (event.key === "Escape" || event.keyCode === 27) {
             if (chatWS) {
                 chatWS.close();
@@ -32,10 +30,8 @@ $(document).ready(function () {
         if (chatWS) {
             chatWS.close();
         }
-
         cardBodyButton.removeClass("active");
         $(this).addClass("active");
-
         const req = {
             "csrfmiddlewaretoken": "{{ csrf_token }}",
             "user_or_group_to_connect": $(this).data().id,
@@ -44,8 +40,7 @@ $(document).ready(function () {
         if ($(this).data().type === "group") {
             roomType = $(this).data().type;
             url = "{% url 'chat:group' %}";
-        }
-        else {
+        } else {
             roomType = $(this).data().type;
             url = "{% url 'chat:personal' %}";
         }
@@ -61,10 +56,10 @@ $(document).ready(function () {
     });
 
     function setupAndInitializeChatArea(to, room) {
-        intializeChatWS(room);
-        getLast15Messages(room);
+        initializeChatWS(room);
         cardHeader.empty();
         cardBody.empty();
+        cardBody.on('scroll', handleScroll);
         cardHeader.append(`
             <span>${to}</span>
             <div class="d-flex justify-content-between">
@@ -88,39 +83,21 @@ $(document).ready(function () {
         cardTools.removeClass("d-none").addClass("d-flex");
     }
 
-    function getLast15Messages(room) {
-        if (chatWS.readyState === WebSocket.OPEN) {
-            chatWS.send(JSON.stringify({
-                "command": "get_last_15_messages"
-            }));
-        }
-    }
-
-    function intializeChatWS(room) {
+    function initializeChatWS(room) {
         const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
         chatWS = new WebSocket(`${wsProtocol}://${window.location.host}/ws/chat/${room}`);
 
-        chatWS.onopen = function () {
-            console.log("chatWS OPENED");
-        };
-
-        chatWS.onclose = function () {
-            console.log("chatWS CLOSED");
-        };
-
-        chatWS.onerror = function () {
-            console.log("chatWS ERROR");
-        };
-
-        chatWS.onmessage = function (event) {
-            const data = JSON.parse(event.data);
+        chatWS.onopen = () => getMessages(currentPage, perPage);
+        chatWS.onclose = () => console.log("chatWS CLOSED");
+        chatWS.onerror = () => console.log("chatWS ERROR");
+        chatWS.onmessage = ({ data }) => {
+            const { type, message, from_user, timestamp, participants, pagination } = JSON.parse(data);
             const statusIcon = cardHeader.find("span#status-icon");
             const typingIndicator = cardHeader.find("div > div.typing-indicator");
-            console.log(data);
 
-            if (data.type === "status_update") {
+            if (type === "status_update") {
                 const isGroup = roomType === "group";
-                const connected = data.participants.length > 1;
+                const connected = participants.length > 1;
 
                 statusIcon.text(isGroup ? "person" : "radio_button_checked")
                     .toggleClass("text-success", connected)
@@ -128,68 +105,115 @@ $(document).ready(function () {
                     .attr("title", connected ? "Connected" : isGroup ? "" : "Disconnected");
 
                 if (isGroup) {
-                    statusIcon.append(`<span>${data.participants.length - 1}</span>`);
+                    statusIcon.append(`<span>${participants.length - 1}</span>`);
                 }
             }
 
-            if (data.type === "incoming") {
-                const { message, from_user, timestamp } = data;
+            if (type === "incoming") {
                 cardBody.append(createNewMessageBubble(message, from_user, timestamp));
                 cardBody.scrollTop(cardBody[0].scrollHeight);
             }
 
-            if (data.type === "typing" && data.from_user !== "{{ request.user }}") {
+            if (type === "load_messages") {
+                loading = false;
+                displayMessages(JSON.parse(data).messages, pagination.total_pages);
+                updatePagination(pagination);
+            }
+
+            if (type === "typing" && from_user !== "{{ request.user }}") {
                 typingIndicator.toggleClass(["d-none", "d-flex"])
-                    .find("span > small").text(data.message);
+                    .find("span > small").text(message);
                 setTimeout(() => typingIndicator.toggleClass(["d-none", "d-flex"]), 1500);
             }
         };
+    }
 
-        function createNewMessageBubble(message, from_user, timestamp) {
-            const md = window.markdownit({
-                highlight: function (str, lang) {
-                    if (lang && hljs.getLanguage(lang)) {
-                        try {
-                            return '<pre><code class="hljs">' +
-                                hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
-                                '</code></pre>';
-                        } catch (error) {
-                            console.error("Highlight.js error:", error);
-                        }
+    function createNewMessageBubble(message, from_user, timestamp) {
+        const md = window.markdownit({
+            highlight: function (str, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return '<pre><code class="hljs">' +
+                            hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
+                            '</code></pre>';
+                    } catch (error) {
+                        console.error("Highlight.js error:", error);
                     }
-                    return '<pre><code class="hljs">' + md.utils.escapeHtml(str) + '</code></pre>';
-                },
-                linkify: true,
-            });
-            const newMessageBubble = document.createElement("div");
-            newMessageBubble.classList.add("bubble", from_user === "{{request.user}}" ? "right" : "left");
-            newMessageBubble.innerHTML = md.render(message);
+                }
+                return '<pre><code class="hljs">' + md.utils.escapeHtml(str) + '</code></pre>';
+            },
+            linkify: true,
+        });
+        const newMessageBubble = document.createElement("div");
+        newMessageBubble.classList.add("bubble", from_user === "{{request.user}}" ? "right" : "left");
+        newMessageBubble.innerHTML = md.render(message);
 
-            const timestampElm = document.createElement("small");
-            timestampElm.classList.add("d-block", "text-end")
-            timestampElm.innerText = timestamp;
+        const timestampElm = document.createElement("small");
+        timestampElm.classList.add("d-block", "text-end")
+        timestampElm.innerText = timestamp;
 
-            newMessageBubble.appendChild(timestampElm);
+        newMessageBubble.appendChild(timestampElm);
 
-            return newMessageBubble;
+        return newMessageBubble;
+    }
+
+    textArea.on("keyup", function () {
+        if (chatWS.readyState === WebSocket.OPEN && textArea.val().trim()) {
+            chatWS.send(JSON.stringify({
+                "command": "typing"
+            }));
         }
+    });
 
-        textArea.on("keyup", function () {
-            if (chatWS.readyState === WebSocket.OPEN && textArea.val().trim()) {
-                chatWS.send(JSON.stringify({
-                    "command": "typing"
-                }));
-            }
-        });
+    $("button#send-msg-btn").on("click", async function () {
+        if (chatWS.readyState === WebSocket.OPEN && textArea.val().trim()) {
+            await chatWS.send(JSON.stringify({
+                "command": "send_message",
+                "message": textArea.val().trim()
+            }));
+        }
+        textArea.val("");
+    });
 
-        $("button#send-msg-btn").on("click", async function () {
-            if (chatWS.readyState === WebSocket.OPEN && textArea.val().trim()) {
-                await chatWS.send(JSON.stringify({
-                    "command": "send_message",
-                    "message": textArea.val().trim()
-                }));
-            }
-            textArea.val("");
+    function displayMessages(messages, totalPages) {
+        const currentHeight = cardBody[0].scrollHeight;
+        messages.forEach(msg => {
+            const { message, from_user, created_at } = msg;
+            cardBody.prepend(createNewMessageBubble(message, from_user, created_at));
         });
+        cardBody.scrollTop(cardBody[0].scrollHeight - currentHeight);
+    }
+
+    function updatePagination(paginationData) {
+        totalPages = paginationData.total_pages;
+        currentPage = paginationData.current_page;
+
+        if (currentPage < totalPages) {
+            cardBody.on("scroll", handleScroll);
+        } else {
+            cardBody.off("scroll", handleScroll);
+        }
+    }
+
+    function getMessages(page, size) {
+        loading = true;
+        chatWS.send(JSON.stringify({
+            "command": "get_messages",
+            "page_number": page,
+            "page_size": size
+        }));
+    }
+
+    function loadMoreMessages() {
+        if (currentPage < totalPages) {
+            ++currentPage;
+            getMessages(currentPage, perPage);
+        }
+    }
+
+    function handleScroll() {
+        if (cardBody.scrollTop() <= 110 && !loading) {
+            loadMoreMessages();
+        }
     }
 });

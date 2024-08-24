@@ -104,4 +104,4 @@ class Message(models.Model):
     seen = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.chat_room} | {self.from_user} | {self.content[:10]}'
+        return f'{self.chatroom} | {self.content[:10]}'
