@@ -58,8 +58,7 @@ class ProfileView(AsyncLoginRequiredMixin, View):
             raise Http404("User does not exist")
 
         logged_in_user = request.user
-        friend, created = await Friend.objects.aget_or_create(user=user)
-        
+        friend, _ = await Friend.objects.aget_or_create(user=user)
 
         fr_list = await sync_to_async(lambda: list(friend.friends.all()))()
         fr_list = [_.username for _ in fr_list]
